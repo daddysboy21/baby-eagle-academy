@@ -39,8 +39,8 @@ const AcademyProfile = () => {
                 </p>
               </div>
             </div>
-            
-            <div className="bg-primary-dark/90 backdrop-blur-sm p-6 rounded-lg shadow-brand">
+
+            <div className="bg-gradient-to-r from-white/1 to-white/1 backdrop-blur-sm border border-white/50 shadow-sm p-6 rounded-2xl">
               <div className="space-y-3 text-sm lg:text-base">
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
