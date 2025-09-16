@@ -47,8 +47,8 @@ const AcademyProfile = () => {
                   <span>babyeaglefootball231@gmail.com</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3 h-3" />
-                  <span>0779137667 | 0881111888 | 0776043008</span>
+                  <Phone className="w-4 h-4" />
+                  <span>+231779137667 | +231881111888 | +231776043008</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4" />
