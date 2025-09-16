@@ -6,6 +6,7 @@ import heroImage from "@/assets/hero-football.jpg";
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
 import FanMemberForm from "@/components/forms/FanMemberForm";
+import Gallery from "@/components/Gallery";
 
 const AcademyProfile = () => {
   return (
@@ -343,6 +344,10 @@ const AcademyProfile = () => {
             <PlayerApplicationForm />
             <PartnerApplicationForm />
             <FanMemberForm />
+          </div>
+
+          <div className="mb-12">
+            <Gallery />
           </div>
 
           <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-2xl mx-auto">
