@@ -45,7 +45,6 @@ const FanMemberForm = () => {
 
   const onSubmit = async (data: FanMemberFormData) => {
     try {
-      // TODO: This will work once Supabase is connected
       console.log("Fan member application data:", { ...data, photo: photoFile });
       
       toast({

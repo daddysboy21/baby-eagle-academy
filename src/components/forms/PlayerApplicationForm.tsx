@@ -49,7 +49,6 @@ const PlayerApplicationForm = () => {
 
   const onSubmit = async (data: PlayerFormData) => {
     try {
-      // TODO: This will work once Supabase is connected
       console.log("Player application data:", { ...data, photo: photoFile });
       
       toast({

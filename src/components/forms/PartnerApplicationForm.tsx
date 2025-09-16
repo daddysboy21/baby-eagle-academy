@@ -35,7 +35,6 @@ const PartnerApplicationForm = () => {
 
   const onSubmit = async (data: PartnerFormData) => {
     try {
-      // TODO: This will work once Supabase is connected
       console.log("Partnership application data:", data);
       
       toast({
