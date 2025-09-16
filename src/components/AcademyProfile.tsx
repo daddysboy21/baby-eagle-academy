@@ -11,14 +11,14 @@ const AcademyProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Section */}
-      <header className="relative bg-gradient-hero text-primary-foreground overflow-hidden">
+      <header className="relative bg-gradient-hero text-primary-foreground overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-black/20"></div>
         <img 
           src={heroImage} 
           alt="Baby Eagle Football Academy players in action" 
           className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
         />
-        <div className="relative container mx-auto px-6 py-16">
+        <div className="relative container mx-auto px-6 py-16 w-full">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div className="flex-1">
               <div className="mb-6">
