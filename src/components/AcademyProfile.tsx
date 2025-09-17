@@ -19,7 +19,7 @@ const AcademyProfile = () => {
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="font-bold text-xl text-primary">
-              Baby Eagle FA
+              BEFA
             </Link>
             
             {/* Desktop Navigation */}
