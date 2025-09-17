@@ -13,52 +13,59 @@ import { useToast } from "@/hooks/use-toast";
 
 const playerSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  age: z.string().min(1, "Age is required"),
-  contact: z.string().min(8, "Contact number must be at least 8 digits"),
+  age: z.preprocess(
+    (val) => (val ? Number(val) : undefined),
+    z.number().min(10, "Players must be at least 10 years old")
+  ),
+  contact: z
+    .string()
+    .regex(/^\d{8,15}$/, "Contact number must be 8–15 digits"),
   email: z.string().email("Please enter a valid email"),
   schoolCommunity: z.string().min(2, "School/Community is required"),
   position: z.string().min(1, "Please select a position"),
-  photo: z.any().optional()
+  photo: z
+    .any()
+    .refine(
+      (file) =>
+        !file ||
+        (file instanceof File && file.type.startsWith("image/") && file.size <= 2 * 1024 * 1024),
+      {
+        message: "Only image files under 2MB are allowed",
+      }
+    )
+    .optional(),
 });
 
 type PlayerFormData = z.infer<typeof playerSchema>;
 
 const PlayerApplicationForm = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const form = useForm<PlayerFormData>({
     resolver: zodResolver(playerSchema),
     defaultValues: {
       fullName: "",
-      age: "",
+      age: undefined,
       contact: "",
       email: "",
       schoolCommunity: "",
       position: "",
-    }
+      photo: undefined,
+    },
   });
-
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPhotoFile(file);
-    }
-  };
 
   const onSubmit = async (data: PlayerFormData) => {
     try {
-      console.log("Player application data:", { ...data, photo: photoFile });
-      
+      console.log("Player application data:", data);
+
       toast({
         title: "Application Submitted!",
         description: "Your player application has been received. We'll contact you soon!",
       });
-      
+
       setIsOpen(false);
       form.reset();
-      setPhotoFile(null);
     } catch (error) {
       toast({
         title: "Error",
@@ -82,62 +89,69 @@ const PlayerApplicationForm = () => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your full name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Full Name & Age */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your full name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="age"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Age</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Enter your age" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem className="sm:w-24">
+                    <FormLabel>Age</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Age" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="contact"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your phone number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Contact & Email */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <FormField
+                control={form.control}
+                name="contact"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Contact Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your phone number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="Enter your email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="Enter your email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
+            {/* School/Community */}
             <FormField
               control={form.control}
               name="schoolCommunity"
@@ -152,6 +166,7 @@ const PlayerApplicationForm = () => {
               )}
             />
 
+            {/* Position */}
             <FormField
               control={form.control}
               name="position"
@@ -177,28 +192,40 @@ const PlayerApplicationForm = () => {
               )}
             />
 
-            <div className="space-y-2">
-              <Label>Passport Size Photo</Label>
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                  className="hidden"
-                  id="photo-upload"
-                />
-                <label
-                  htmlFor="photo-upload"
-                  className="cursor-pointer flex flex-col items-center gap-2"
-                >
-                  <Upload className="w-8 h-8 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {photoFile ? photoFile.name : "Click to upload passport photo"}
-                  </span>
-                </label>
-              </div>
-            </div>
+            {/* Photo Upload */}
+            <FormField
+              control={form.control}
+              name="photo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Passport Size Photo</FormLabel>
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="photo-upload"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        field.onChange(file);
+                      }}
+                    />
+                    <label
+                      htmlFor="photo-upload"
+                      className="cursor-pointer flex flex-col items-center gap-2"
+                    >
+                      <Upload className="w-8 h-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {field.value ? (field.value as File).name : "Click to upload passport photo"}
+                      </span>
+                    </label>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            {/* Submit */}
             <Button type="submit" className="w-full">
               Submit Application
             </Button>
