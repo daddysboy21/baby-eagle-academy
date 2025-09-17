@@ -355,7 +355,7 @@ const AcademyProfile = () => {
               </div>
               <div className="flex items-center justify-center gap-3">
                 <Phone className="w-5 h-5" />
-                <span>0779137667 | 0881111888 | 0776043008</span>
+                <span>+231779137667 | +231881111888 | +231776043008</span>
               </div>
               <div className="flex items-center justify-center gap-3">
                 <Users className="w-5 h-5" />
