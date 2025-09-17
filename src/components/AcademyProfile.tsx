@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X, Newspaper, UserCheck } from "lucide-react";
+import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X, Newspaper, UserCheck, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import heroImage from "@/assets/hero-football.jpg";
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
 import FanMemberForm from "@/components/forms/FanMemberForm";
-import Gallery from "@/components/Gallery";
 
 const AcademyProfile = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,6 +35,10 @@ const AcademyProfile = () => {
               <Link to="/news" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
                 <Newspaper className="w-4 h-4" />
                 News
+              </Link>
+              <Link to="/gallery" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <Camera className="w-4 h-4" />
+                Gallery
               </Link>
             </div>
 
@@ -75,6 +78,14 @@ const AcademyProfile = () => {
                 >
                   <Newspaper className="w-4 h-4" />
                   News
+                </Link>
+                <Link 
+                  to="/gallery" 
+                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Camera className="w-4 h-4" />
+                  Gallery
                 </Link>
               </div>
             </div>
@@ -411,10 +422,6 @@ const AcademyProfile = () => {
             <PlayerApplicationForm />
             <PartnerApplicationForm />
             <FanMemberForm />
-          </div>
-
-          <div className="mb-12">
-            <Gallery />
           </div>
 
           <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-2xl mx-auto">
