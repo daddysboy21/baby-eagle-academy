@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X, Newspaper, UserCheck, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import heroImage from "@/assets/hero-football.jpg";
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
@@ -11,32 +11,86 @@ import FanMemberForm from "@/components/forms/FanMemberForm";
 
 const AcademyProfile = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > window.innerHeight - 80) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-white/1 to-white/1 backdrop-blur-sm">
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+          scrolled
+            ? "bg-white/1 backdrop-blur-sm shadow-sm"
+            : "bg-transparent"
+        }`}
+      >
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="font-bold text-xl text-primary">
+            {/* Logo */}
+            <Link
+              to="/"
+              className={`font-bold text-xl transition-colors duration-300 ${
+                scrolled ? "text-primary" : "text-white"
+              }`}
+            >
               BEFA
             </Link>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/players" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+              <Link
+                to="/players"
+                className={`transition-colors flex items-center gap-2 ${
+                  scrolled
+                    ? "text-foreground hover:text-primary"
+                    : "text-white hover:text-secondary"
+                }`}
+              >
                 <Users className="w-4 h-4" />
                 Players
               </Link>
-              <Link to="/staff" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+              <Link
+                to="/staff"
+                className={`transition-colors flex items-center gap-2 ${
+                  scrolled
+                    ? "text-foreground hover:text-primary"
+                    : "text-white hover:text-secondary"
+                }`}
+              >
                 <UserCheck className="w-4 h-4" />
                 Staff
               </Link>
-              <Link to="/news" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+              <Link
+                to="/news"
+                className={`transition-colors flex items-center gap-2 ${
+                  scrolled
+                    ? "text-foreground hover:text-primary"
+                    : "text-white hover:text-secondary"
+                }`}
+              >
                 <Newspaper className="w-4 h-4" />
                 News
               </Link>
-              <Link to="/gallery" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+              <Link
+                to="/gallery"
+                className={`transition-colors flex items-center gap-2 ${
+                  scrolled
+                    ? "text-foreground hover:text-primary"
+                    : "text-white hover:text-secondary"
+                }`}
+              >
                 <Camera className="w-4 h-4" />
                 Gallery
               </Link>
@@ -47,7 +101,19 @@ const AcademyProfile = () => {
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? (
+                <X
+                  className={`w-6 h-6 ${
+                    scrolled ? "text-primary" : "text-white"
+                  }`}
+                />
+              ) : (
+                <Menu
+                  className={`w-6 h-6 ${
+                    scrolled ? "text-primary" : "text-white"
+                  }`}
+                />
+              )}
             </button>
           </div>
 
@@ -55,33 +121,49 @@ const AcademyProfile = () => {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t">
               <div className="flex flex-col space-y-4">
-                <Link 
-                  to="/players" 
-                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                <Link
+                  to="/players"
+                  className={`transition-colors flex items-center gap-2 ${
+                    scrolled
+                      ? "text-foreground hover:text-primary"
+                      : "text-white hover:text-secondary"
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Users className="w-4 h-4" />
                   Players
                 </Link>
-                <Link 
-                  to="/staff" 
-                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                <Link
+                  to="/staff"
+                  className={`transition-colors flex items-center gap-2 ${
+                    scrolled
+                      ? "text-foreground hover:text-primary"
+                      : "text-white hover:text-secondary"
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <UserCheck className="w-4 h-4" />
                   Staff
                 </Link>
-                <Link 
-                  to="/news" 
-                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                <Link
+                  to="/news"
+                  className={`transition-colors flex items-center gap-2 ${
+                    scrolled
+                      ? "text-foreground hover:text-primary"
+                      : "text-white hover:text-secondary"
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Newspaper className="w-4 h-4" />
                   News
                 </Link>
-                <Link 
-                  to="/gallery" 
-                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                <Link
+                  to="/gallery"
+                  className={`transition-colors flex items-center gap-2 ${
+                    scrolled
+                      ? "text-foreground hover:text-primary"
+                      : "text-white hover:text-secondary"
+                  }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Camera className="w-4 h-4" />
@@ -96,9 +178,9 @@ const AcademyProfile = () => {
       {/* Header Section */}
       <header className="relative bg-gradient-hero text-primary-foreground overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-black/20"></div>
-        <img 
-          src={heroImage} 
-          alt="Baby Eagle Football Academy players in action" 
+        <img
+          src={heroImage}
+          alt="Baby Eagle Football Academy players in action"
           className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
         />
         <div className="relative container mx-auto px-6 py-16 w-full">
