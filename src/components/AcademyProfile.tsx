@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin } from "lucide-react";
+import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X, Newspaper, UserCheck } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 import heroImage from "@/assets/hero-football.jpg";
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
@@ -9,8 +11,77 @@ import FanMemberForm from "@/components/forms/FanMemberForm";
 import Gallery from "@/components/Gallery";
 
 const AcademyProfile = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="font-bold text-xl text-primary">
+              Baby Eagle FA
+            </Link>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <Link to="/players" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Players
+              </Link>
+              <Link to="/staff" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <UserCheck className="w-4 h-4" />
+                Staff
+              </Link>
+              <Link to="/news" className="text-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <Newspaper className="w-4 h-4" />
+                News
+              </Link>
+            </div>
+
+            {/* Mobile menu button */}
+            <button
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden py-4 border-t">
+              <div className="flex flex-col space-y-4">
+                <Link 
+                  to="/players" 
+                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Users className="w-4 h-4" />
+                  Players
+                </Link>
+                <Link 
+                  to="/staff" 
+                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <UserCheck className="w-4 h-4" />
+                  Staff
+                </Link>
+                <Link 
+                  to="/news" 
+                  className="text-foreground hover:text-primary transition-colors flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Newspaper className="w-4 h-4" />
+                  News
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
       {/* Header Section */}
       <header className="relative bg-gradient-hero text-primary-foreground overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-black/20"></div>
