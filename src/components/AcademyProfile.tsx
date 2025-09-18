@@ -33,7 +33,7 @@ const AcademyProfile = () => {
         className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
           scrolled
             ? "bg-white/1 backdrop-blur-sm shadow-sm"
-            : "bg-transparent"
+            : "bg-transparent backdrop-blur-sm shadow-sm"
         }`}
       >
         <div className="container mx-auto px-6">
@@ -215,8 +215,8 @@ const AcademyProfile = () => {
                   <span>+231779137667 | +231881111888 | +231776043008</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  <span>Baby Eagle Academy</span>
+                  <MapPin className="w-5 h-5" />
+                  <span>Jamaica Road Community, Liberia</span>
                 </div>
               </div>
             </div>
