@@ -96,15 +96,6 @@ const Manage = () => {
                     View All Users
                   </Button>
                 </Link>
-                
-                {canAddAdmins && (
-                  <Link to="/manage/users/add">
-                    <Button className="w-full justify-start" variant="outline">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Add New User
-                    </Button>
-                  </Link>
-                )}
               </CardContent>
             </Card>
           )}
@@ -127,15 +118,6 @@ const Manage = () => {
                   Manage Players
                 </Button>
               </Link>
-              
-              {canManageUsers && (
-                <Link to="/manage/players/add">
-                  <Button className="w-full justify-start" variant="outline">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add Player
-                  </Button>
-                </Link>
-              )}
             </CardContent>
           </Card>
 
@@ -157,15 +139,6 @@ const Manage = () => {
                   Manage Staff
                 </Button>
               </Link>
-              
-              {canManageUsers && (
-                <Link to="/manage/staff/add">
-                  <Button className="w-full justify-start" variant="outline">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add Staff Member
-                  </Button>
-                </Link>
-              )}
             </CardContent>
           </Card>
 
@@ -186,13 +159,6 @@ const Manage = () => {
                   <Button className="w-full justify-start" variant="outline">
                     <Newspaper className="h-4 w-4 mr-2" />
                     Manage News
-                  </Button>
-                </Link>
-                
-                <Link to="/manage/news/add">
-                  <Button className="w-full justify-start" variant="outline">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add News Article
                   </Button>
                 </Link>
               </CardContent>
@@ -216,13 +182,6 @@ const Manage = () => {
                   <Button className="w-full justify-start" variant="outline">
                     <Camera className="h-4 w-4 mr-2" />
                     Manage Gallery
-                  </Button>
-                </Link>
-                
-                <Link to="/manage/gallery/add">
-                  <Button className="w-full justify-start" variant="outline">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Upload Photos
                   </Button>
                 </Link>
               </CardContent>
@@ -251,33 +210,6 @@ const Manage = () => {
               </CardContent>
             </Card>
           )}
-        </div>
-
-        {/* Role Permissions Info */}
-        <div className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Permissions</CardTitle>
-              <CardDescription>
-                What you can do with your current role: {user?.role}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-green-600">You Can:</h4>
-                  <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• Manage news articles</li>
-                    <li>• Upload to gallery</li>
-                    {canManageUsers && <li>• Add/manage players & staff</li>}
-                    {canManageUsers && <li>• Add media persons</li>}
-                    {canAddAdmins && <li>• Add all user types</li>}
-                    {user?.role === 'admin' && <li>• System configuration</li>}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

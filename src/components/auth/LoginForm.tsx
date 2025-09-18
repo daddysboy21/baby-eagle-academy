@@ -103,12 +103,6 @@ const LoginForm = () => {
               )}
             </Button>
           </form>
-          
-          <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground text-center">
-              Demo credentials: admin@befa.com / admin123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
