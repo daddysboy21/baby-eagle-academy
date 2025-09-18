@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X, Newspaper, UserCheck, Camera } from "lucide-react";
+import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X, Newspaper, UserCheck, Camera, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-football.jpg";
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
@@ -12,6 +13,7 @@ import FanMemberForm from "@/components/forms/FanMemberForm";
 const AcademyProfile = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,6 +96,20 @@ const AcademyProfile = () => {
                 <Camera className="w-4 h-4" />
                 Gallery
               </Link>
+              
+              {user && (
+                <Link
+                  to="/manage"
+                  className={`transition-colors flex items-center gap-2 ${
+                    scrolled
+                      ? "text-foreground hover:text-primary"
+                      : "text-white hover:text-secondary"
+                  }`}
+                >
+                  <Settings className="w-4 h-4" />
+                  Manage
+                </Link>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -168,8 +184,22 @@ const AcademyProfile = () => {
                 >
                   <Camera className="w-4 h-4" />
                   Gallery
+              </Link>
+              
+              {user && (
+                <Link
+                  to="/manage"
+                  className={`transition-colors flex items-center gap-2 ${
+                    scrolled
+                      ? "text-foreground hover:text-primary"
+                      : "text-white hover:text-secondary"
+                  }`}
+                >
+                  <Settings className="w-4 h-4" />
+                  Manage
                 </Link>
-              </div>
+              )}
+            </div>
             </div>
           )}
         </div>
