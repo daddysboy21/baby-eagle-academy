@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-football.jpg";
+import BEFALogo from "@/assets/eagle.png"
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
 import FanMemberForm from "@/components/forms/FanMemberForm";
@@ -47,7 +48,7 @@ const AcademyProfile = () => {
                 scrolled ? "text-primary" : "text-white"
               }`}
             >
-              BEFA
+              <img className="h-14" src={BEFALogo} alt="Baby Eagle Logo" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -463,61 +464,6 @@ const AcademyProfile = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Leadership & Staff */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-12 text-primary">Leadership & Staff</h2>
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              <Card className="shadow-brand">
-                <CardHeader>
-                  <CardTitle className="text-primary">Officials</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-sm">
-                    <div><strong>CEO/President:</strong> Kafumba A. Kenneh</div>
-                    <div><strong>Vice President:</strong> Ismail Kromah</div>
-                    <div><strong>General Manager/SG:</strong> Mohammed Massaley</div>
-                    <div><strong>Finance:</strong> Doffee Doryen</div>
-                    <div><strong>PRO & Youth Dev:</strong> Wesley A. Sharp</div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-brand">
-                <CardHeader>
-                  <CardTitle className="text-primary">Technical Staff</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-sm">
-                    <div><strong>Team Manager:</strong> Alexander Georgia</div>
-                    <div><strong>Head Coach:</strong> Joseph David</div>
-                    <div><strong>Assistant Coach:</strong> Emmanuel David</div>
-                    <div><strong>Goalkeeper Trainer:</strong> Doffee Doryen</div>
-                    <div><strong>Fitness Coach:</strong> Wesley A. Sharp</div>
-                    <div><strong>Team Captain:</strong> Wesley A. Sharp</div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-brand">
-                <CardHeader>
-                  <CardTitle className="text-primary">Support Staff</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-sm">
-                    <div><strong>Head Medic:</strong> Abdullaziz Kanneh</div>
-                    <div><strong>Assistant Medic:</strong> Joseph David</div>
-                    <div><strong>Welfare Officer:</strong> Emmanuel David</div>
-                    <div><strong>Equipment Manager:</strong> Doffee Doryen</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </div>
       </section>

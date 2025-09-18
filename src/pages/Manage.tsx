@@ -187,29 +187,6 @@ const Manage = () => {
               </CardContent>
             </Card>
           )}
-
-          {/* System Settings (Admin only) */}
-          {user?.role === 'admin' && (
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  System Settings
-                </CardTitle>
-                <CardDescription>
-                  Configure system preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to="/manage/settings">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
-                    System Settings
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>
