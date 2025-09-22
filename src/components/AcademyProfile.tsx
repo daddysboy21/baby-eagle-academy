@@ -6,7 +6,8 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-football.jpg";
-import BEFALogo from "@/assets/eagle.png"
+import BEFALogo from "@/assets/eagle.jpg"
+import ABK from "@/assets/abk.jpg"
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
 import FanMemberForm from "@/components/forms/FanMemberForm";
@@ -33,22 +34,22 @@ const AcademyProfile = () => {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
+        className={`absolute top-0 left-0 right-0 z-10 transition-colors duration-300 ${
           scrolled
-            ? "bg-white/1 backdrop-blur-sm shadow-sm"
-            : "bg-transparent backdrop-blur-sm shadow-sm"
+            ? "bg-white/1 backdrop-blur-lg shadow-sm"
+            : "bg-transparent backdrop-blur-lg shadow-sm"
         }`}
       >
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link
-              to="/"
+              to="https://web.facebook.com/babyeaglefootballacademy"
               className={`font-bold text-xl transition-colors duration-300 ${
                 scrolled ? "text-primary" : "text-white"
               }`}
             >
-              <img className="h-14" src={BEFALogo} alt="Baby Eagle Logo" />
+              <img className="h-14 rounded-full" src={BEFALogo} alt="Baby Eagle Logo" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -218,7 +219,7 @@ const AcademyProfile = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div className="flex-1">
               <div className="mb-6">
-                <h1 className="text-5xl lg:text-7xl font-bold mb-4 tracking-tight">
+                <h1 className="text-4xl lg:text-6xl font-bold mb-4 tracking-tight">
                   BABY EAGLE
                 </h1>
                 <h2 className="text-3xl lg:text-4xl font-semibold mb-2">
@@ -482,27 +483,11 @@ const AcademyProfile = () => {
             <FanMemberForm />
           </div>
 
-          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-center gap-3">
-                <Mail className="w-5 h-5" />
-                <span>babyeaglefootball231@gmail.com</span>
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <Phone className="w-5 h-5" />
-                <span>+231779137667 | +231881111888 | +231776043008</span>
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <Users className="w-5 h-5" />
-                <span>Baby Eagle Academy (BEFA)</span>
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <MapPin className="w-5 h-5" />
-                <span>Jamaica Road Community, Liberia</span>
-              </div>
-            </div>
+          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-sm mx-auto">
+            <h3 className="text-sm mb-2">POWERED BY:</h3>
+            <img src={ABK} alt="ABK Logo" className="mx-auto h-10 rounded-full" />
           </div>
+
         </div>
       </section>
     </div>
