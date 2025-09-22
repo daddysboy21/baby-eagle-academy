@@ -6,17 +6,17 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-football.jpg";
-import BEFALogo from "@/assets/eagle.jpg"
-import ABK from "@/assets/abk.jpg"
+import BEFALogo from "@/assets/eagle.jpg";
+import ABK from "@/assets/abk.jpg";
 import PlayerApplicationForm from "@/components/forms/PlayerApplicationForm";
 import PartnerApplicationForm from "@/components/forms/PartnerApplicationForm";
 import FanMemberForm from "@/components/forms/FanMemberForm";
-
 const AcademyProfile = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user } = useAuth();
-
+  const {
+    user
+  } = useAuth();
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > window.innerHeight - 80) {
@@ -25,196 +25,83 @@ const AcademyProfile = () => {
         setScrolled(false);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav
-        className={`absolute top-0 left-0 right-0 z-10 transition-colors duration-300 ${
-          scrolled
-            ? "bg-white/1 backdrop-blur-lg shadow-sm"
-            : "bg-transparent backdrop-blur-lg shadow-sm"
-        }`}
-      >
+      <nav className={`absolute top-0 left-0 right-0 z-10 transition-colors duration-300 ${scrolled ? "bg-white/1 backdrop-blur-lg shadow-sm" : "bg-transparent backdrop-blur-lg shadow-sm"}`}>
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link
-              to="https://web.facebook.com/babyeaglefootballacademy"
-              className={`font-bold text-xl transition-colors duration-300 ${
-                scrolled ? "text-primary" : "text-white"
-              }`}
-            >
+            <Link to="https://web.facebook.com/babyeaglefootballacademy" className={`font-bold text-xl transition-colors duration-300 ${scrolled ? "text-primary" : "text-white"}`}>
               <img className="h-14 rounded-full" src={BEFALogo} alt="Baby Eagle Logo" />
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link
-                to="/players"
-                className={`transition-colors flex items-center gap-2 ${
-                  scrolled
-                    ? "text-foreground hover:text-primary"
-                    : "text-white hover:text-secondary"
-                }`}
-              >
+              <Link to="/players" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`}>
                 <Users className="w-4 h-4" />
                 Players
               </Link>
-              <Link
-                to="/staff"
-                className={`transition-colors flex items-center gap-2 ${
-                  scrolled
-                    ? "text-foreground hover:text-primary"
-                    : "text-white hover:text-secondary"
-                }`}
-              >
+              <Link to="/staff" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`}>
                 <UserCheck className="w-4 h-4" />
                 Staff
               </Link>
-              <Link
-                to="/news"
-                className={`transition-colors flex items-center gap-2 ${
-                  scrolled
-                    ? "text-foreground hover:text-primary"
-                    : "text-white hover:text-secondary"
-                }`}
-              >
+              <Link to="/news" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`}>
                 <Newspaper className="w-4 h-4" />
                 News
               </Link>
-              <Link
-                to="/gallery"
-                className={`transition-colors flex items-center gap-2 ${
-                  scrolled
-                    ? "text-foreground hover:text-primary"
-                    : "text-white hover:text-secondary"
-                }`}
-              >
+              <Link to="/gallery" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`}>
                 <Camera className="w-4 h-4" />
                 Gallery
               </Link>
               
-              {user && (
-                <Link
-                  to="/manage"
-                  className={`transition-colors flex items-center gap-2 ${
-                    scrolled
-                      ? "text-foreground hover:text-primary"
-                      : "text-white hover:text-secondary"
-                  }`}
-                >
+              {user && <Link to="/manage" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`}>
                   <Settings className="w-4 h-4" />
                   Manage
-                </Link>
-              )}
+                </Link>}
             </div>
 
             {/* Mobile menu button */}
-            <button
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? (
-                <X
-                  className={`w-6 h-6 ${
-                    scrolled ? "text-primary" : "text-white"
-                  }`}
-                />
-              ) : (
-                <Menu
-                  className={`w-6 h-6 ${
-                    scrolled ? "text-primary" : "text-white"
-                  }`}
-                />
-              )}
+            <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className={`w-6 h-6 ${scrolled ? "text-primary" : "text-white"}`} /> : <Menu className={`w-6 h-6 ${scrolled ? "text-primary" : "text-white"}`} />}
             </button>
           </div>
 
           {/* Mobile Navigation */}
-          {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t">
+          {mobileMenuOpen && <div className="md:hidden py-4 border-t">
               <div className="flex flex-col space-y-4">
-                <Link
-                  to="/players"
-                  className={`transition-colors flex items-center gap-2 ${
-                    scrolled
-                      ? "text-foreground hover:text-primary"
-                      : "text-white hover:text-secondary"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link to="/players" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`} onClick={() => setMobileMenuOpen(false)}>
                   <Users className="w-4 h-4" />
                   Players
                 </Link>
-                <Link
-                  to="/staff"
-                  className={`transition-colors flex items-center gap-2 ${
-                    scrolled
-                      ? "text-foreground hover:text-primary"
-                      : "text-white hover:text-secondary"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link to="/staff" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`} onClick={() => setMobileMenuOpen(false)}>
                   <UserCheck className="w-4 h-4" />
                   Staff
                 </Link>
-                <Link
-                  to="/news"
-                  className={`transition-colors flex items-center gap-2 ${
-                    scrolled
-                      ? "text-foreground hover:text-primary"
-                      : "text-white hover:text-secondary"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link to="/news" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`} onClick={() => setMobileMenuOpen(false)}>
                   <Newspaper className="w-4 h-4" />
                   News
                 </Link>
-                <Link
-                  to="/gallery"
-                  className={`transition-colors flex items-center gap-2 ${
-                    scrolled
-                      ? "text-foreground hover:text-primary"
-                      : "text-white hover:text-secondary"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link to="/gallery" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`} onClick={() => setMobileMenuOpen(false)}>
                   <Camera className="w-4 h-4" />
                   Gallery
               </Link>
               
-              {user && (
-                <Link
-                  to="/manage"
-                  className={`transition-colors flex items-center gap-2 ${
-                    scrolled
-                      ? "text-foreground hover:text-primary"
-                      : "text-white hover:text-secondary"
-                  }`}
-                >
+              {user && <Link to="/manage" className={`transition-colors flex items-center gap-2 ${scrolled ? "text-foreground hover:text-primary" : "text-white hover:text-secondary"}`}>
                   <Settings className="w-4 h-4" />
                   Manage
-                </Link>
-              )}
+                </Link>}
             </div>
-            </div>
-          )}
+            </div>}
         </div>
       </nav>
 
       {/* Header Section */}
       <header className="relative bg-gradient-hero text-primary-foreground overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-black/20"></div>
-        <img
-          src={heroImage}
-          alt="Baby Eagle Football Academy players in action"
-          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
-        />
+        <img src={heroImage} alt="Baby Eagle Football Academy players in action" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay" />
         <div className="relative container mx-auto px-6 py-16 w-full">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div className="flex-1">
@@ -483,15 +370,13 @@ const AcademyProfile = () => {
             <FanMemberForm />
           </div>
 
-          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-sm mx-auto">
+          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-sm mx-auto px-[25px] py-[2px]">
             <h3 className="text-sm mb-2">POWERED BY:</h3>
             <img src={ABK} alt="ABK Logo" className="mx-auto h-10 rounded-full" />
           </div>
 
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default AcademyProfile;
