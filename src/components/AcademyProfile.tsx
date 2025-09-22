@@ -358,7 +358,7 @@ const AcademyProfile = () => {
 
       {/* Join the Baby Eagle Family Section */}
       <section className="py-16 bg-gradient-hero text-primary-foreground">
-        <div className="container mx-auto px-6 text-center">
+        <div className="container mx-auto text-center px-[15px]">
           <h2 className="text-4xl font-bold mb-8">Join the Baby Eagle Family</h2>
           <p className="text-xl mb-12 max-w-2xl mx-auto">
             Ready to be part of something bigger? Join us in building champions on and off the pitch.
@@ -370,7 +370,7 @@ const AcademyProfile = () => {
             <FanMemberForm />
           </div>
 
-          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-sm mx-auto px-[25px] py-[2px]">
+          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-sm mx-auto py-[20px] px-[20px]">
             <h3 className="text-sm mb-2">POWERED BY:</h3>
             <img src={ABK} alt="ABK Logo" className="mx-auto h-10 rounded-full" />
           </div>
