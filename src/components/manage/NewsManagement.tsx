@@ -18,46 +18,26 @@ interface NewsArticle {
   createdAt: string;
 }
 
-// Mock data - replace with API calls
-const mockNews: NewsArticle[] = [
-  {
-    id: '1',
-    title: 'BEFA Wins Championship Title',
-    excerpt: 'After an incredible season, BEFA has secured the championship title with a spectacular final match...',
-    category: 'Match Results',
-    status: 'published',
-    author: 'John Doe',
-    publishDate: '2024-03-15',
-    views: 1250,
-    createdAt: '2024-03-15'
-  },
-  {
-    id: '2',
-    title: 'New Player Signing Announcement',
-    excerpt: 'We are excited to announce the signing of our new striker who will join us for the upcoming season...',
-    category: 'Transfers',
-    status: 'published',
-    author: 'Media Team',
-    publishDate: '2024-03-10',
-    views: 890,
-    createdAt: '2024-03-10'
-  },
-  {
-    id: '3',
-    title: 'Training Camp Updates',
-    excerpt: 'Our team is currently in intensive training preparation for the next season. Here are the latest updates...',
-    category: 'Team News',
-    status: 'draft',
-    author: 'Coach Johnson',
-    publishDate: '',
-    views: 0,
-    createdAt: '2024-03-12'
-  },
-];
+
+import { useEffect } from 'react';
+import { newsAPI } from '@/services/api';
 
 const NewsManagement = () => {
-  const [news, setNews] = useState<NewsArticle[]>(mockNews);
+  const [news, setNews] = useState<NewsArticle[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const data = await newsAPI.getAll();
+        setNews(data);
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to fetch news', variant: 'destructive' });
+      }
+    };
+    fetchNews();
+  }, [toast]);
+// ...existing code...
 
   const getStatusColor = (status: string) => {
     switch (status) {

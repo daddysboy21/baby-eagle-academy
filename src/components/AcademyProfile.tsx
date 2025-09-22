@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X, Newspaper, UserCheck, Camera, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-football.jpg";
 import BEFALogo from "@/assets/eagle.jpg";
 import ABK from "@/assets/abk.jpg";

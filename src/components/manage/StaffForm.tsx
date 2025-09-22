@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { staffAPI } from '@/services/api';
 
 const StaffForm = () => {
   const navigate = useNavigate();
@@ -45,18 +46,12 @@ const StaffForm = () => {
     e.preventDefault();
     
     try {
-      // TODO: Replace with your backend API call
-      // const response = await fetch('/api/staff', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
+      // Send to backend
+      const created = await staffAPI.create(formData);
       toast({
         title: "Staff member added successfully",
-        description: `${formData.name} has been added to the team`,
+        description: `${created.name} has been added to the team`,
       });
-      
       navigate('/manage/staff');
     } catch (error) {
       toast({

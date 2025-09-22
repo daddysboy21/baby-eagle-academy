@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { applicationsAPI } from '@/services/api';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -57,13 +58,21 @@ const PlayerApplicationForm = () => {
 
   const onSubmit = async (data: PlayerFormData) => {
     try {
-      console.log("Player application data:", data);
-
+      // Prepare FormData for backend API
+      const formDataToSend = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === 'photo' && value instanceof File) {
+          formDataToSend.append('photo', value);
+        } else if (value !== undefined) {
+          formDataToSend.append(key, String(value));
+        }
+      });
+  // Use imported applicationsAPI
+      await applicationsAPI.submitPlayer(formDataToSend);
       toast({
         title: "Application Submitted!",
         description: "Your player application has been received. We'll contact you soon!",
       });
-
       setIsOpen(false);
       form.reset();
     } catch (error) {
@@ -104,7 +113,6 @@ const PlayerApplicationForm = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="age"
@@ -113,37 +121,6 @@ const PlayerApplicationForm = () => {
                     <FormLabel>Age</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="Age" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Contact & Email */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <FormField
-                control={form.control}
-                name="contact"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Contact Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your phone number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="Enter your email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

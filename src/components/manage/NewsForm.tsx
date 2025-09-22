@@ -1,3 +1,4 @@
+import { newsAPI } from '@/services/api';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,20 +42,13 @@ const NewsForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
-      // TODO: Replace with your backend API call
-      // const response = await fetch('/api/news', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
+      // Send to backend
+      await newsAPI.create(formData);
       toast({
         title: "News article created",
         description: `Article "${formData.title}" has been ${formData.status === 'published' ? 'published' : 'saved as draft'}`,
       });
-      
       navigate('/manage/news');
     } catch (error) {
       toast({

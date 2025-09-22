@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { authAPI } from '../services/api';
 
 export type UserRole = 'admin' | 'co-admin' | 'media-person';
 
@@ -9,22 +10,16 @@ export interface User {
   name: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from './AuthContextContext';
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// useAuth moved to hooks/useAuth.ts
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -43,21 +38,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const token = localStorage.getItem('authToken');
       if (token) {
-        // TODO: Replace with your backend API call
-        // const response = await fetch('/api/auth/verify', {
-        //   headers: { Authorization: `Bearer ${token}` }
-        // });
-        // const userData = await response.json();
-        // setUser(userData);
-        
-        // Mock user data for now - replace with actual API call
-        const mockUser: User = {
-          id: '1',
-          email: 'admin@befa.com',
-          role: 'admin',
-          name: 'Admin User'
-        };
-        setUser(mockUser);
+        const userData = await authAPI.verifyToken(token);
+        setUser(userData);
       }
     } catch (error) {
       console.error('Auth verification failed:', error);
@@ -70,30 +52,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      
-      // TODO: Replace with your backend API call
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password })
-      // });
-      // const data = await response.json();
-      
-      // Mock authentication - replace with actual API call
-      if (email === 'admin@befa.com' && password === 'admin123') {
-        const mockUser: User = {
-          id: '1',
-          email: email,
-          role: 'admin',
-          name: 'Admin User'
-        };
-        
-        // Store auth token
-        localStorage.setItem('authToken', 'mock-jwt-token');
-        setUser(mockUser);
+      const data = await authAPI.login(email, password);
+      if (data && data.token && data.user) {
+        localStorage.setItem('authToken', data.token);
+        setUser(data.user);
         return true;
       }
-      
       return false;
     } catch (error) {
       console.error('Login failed:', error);

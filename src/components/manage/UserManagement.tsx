@@ -18,18 +18,27 @@ interface User {
   createdAt: string;
 }
 
-// Mock data - replace with API calls
-const mockUsers: User[] = [
-  { id: '1', name: 'Admin User', email: 'admin@befa.com', role: 'admin', createdAt: '2024-01-01' },
-  { id: '2', name: 'John Co-Admin', email: 'john@befa.com', role: 'co-admin', createdAt: '2024-01-15' },
-  { id: '3', name: 'Media Manager', email: 'media@befa.com', role: 'media-person', createdAt: '2024-02-01' },
-];
+
+import { useEffect } from 'react';
+import { usersAPI } from '@/services/api';
+
 
 const UserManagement = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const { toast } = useToast();
+  const [users, setUsers] = useState<User[]>([]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await usersAPI.getAll();
+        setUsers(data);
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to fetch users', variant: 'destructive' });
+      }
+    };
+    fetchUsers();
+  }, [toast]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'media-person' as UserRole });
-  const { toast } = useToast();
 
   const getRoleIcon = (role: UserRole) => {
     switch (role) {
@@ -49,26 +58,13 @@ const UserManagement = () => {
 
   const handleAddUser = async () => {
     try {
-      // TODO: Replace with your backend API call
-      // const response = await fetch('/api/users', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(newUser)
-      // });
-      
-      const user: User = {
-        id: Date.now().toString(),
-        ...newUser,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      
-      setUsers([...users, user]);
+      const created = await usersAPI.create(newUser);
+      setUsers([...users, created]);
       setNewUser({ name: '', email: '', role: 'media-person' });
       setIsAddDialogOpen(false);
-      
       toast({
         title: "User added successfully",
-        description: `${user.name} has been added as ${user.role}`,
+        description: `${created.name} has been added as ${created.role}`,
       });
     } catch (error) {
       toast({
@@ -81,11 +77,8 @@ const UserManagement = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // TODO: Replace with your backend API call
-      // await fetch(`/api/users/${userId}`, { method: 'DELETE' });
-      
+      await usersAPI.delete(userId);
       setUsers(users.filter(user => user.id !== userId));
-      
       toast({
         title: "User deleted",
         description: "User has been removed from the system",

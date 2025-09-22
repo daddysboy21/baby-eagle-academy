@@ -18,46 +18,26 @@ interface Staff {
   createdAt: string;
 }
 
-// Mock data - replace with API calls
-const mockStaff: Staff[] = [
-  { 
-    id: '1', 
-    name: 'Coach Johnson', 
-    role: 'Head Coach', 
-    department: 'Technical', 
-    experience: 10, 
-    email: 'coach@befa.com', 
-    phone: '+233 123 456 789',
-    status: 'active', 
-    createdAt: '2024-01-01' 
-  },
-  { 
-    id: '2', 
-    name: 'Dr. Sarah Wilson', 
-    role: 'Team Doctor', 
-    department: 'Medical', 
-    experience: 8, 
-    email: 'doctor@befa.com', 
-    phone: '+233 987 654 321',
-    status: 'active', 
-    createdAt: '2024-01-15' 
-  },
-  { 
-    id: '3', 
-    name: 'Mark Thompson', 
-    role: 'Fitness Coach', 
-    department: 'Technical', 
-    experience: 5, 
-    email: 'fitness@befa.com', 
-    phone: '+233 555 666 777',
-    status: 'active', 
-    createdAt: '2024-02-01' 
-  },
-];
+
+import { useEffect } from 'react';
+import { staffAPI } from '@/services/api';
 
 const StaffManagement = () => {
-  const [staff, setStaff] = useState<Staff[]>(mockStaff);
+  const [staff, setStaff] = useState<Staff[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const data = await staffAPI.getAll();
+        setStaff(data);
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to fetch staff', variant: 'destructive' });
+      }
+    };
+    fetchStaff();
+  }, [toast]);
+// ...existing code...
 
   const getStatusColor = (status: string) => {
     return status === 'active' ? 'bg-green-500' : 'bg-gray-500';

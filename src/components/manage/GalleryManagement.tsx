@@ -18,46 +18,25 @@ interface GalleryItem {
   status: 'published' | 'private';
 }
 
-// Mock data - replace with API calls
-const mockGallery: GalleryItem[] = [
-  {
-    id: '1',
-    title: 'Championship Victory Celebration',
-    description: 'Team celebrating after winning the championship title',
-    category: 'Matches',
-    imageUrl: '/src/assets/celebration-1.jpg',
-    uploadedBy: 'Media Team',
-    uploadDate: '2024-03-15',
-    views: 850,
-    status: 'published'
-  },
-  {
-    id: '2',
-    title: 'Training Session',
-    description: 'Intensive training session preparation',
-    category: 'Training',
-    imageUrl: '/src/assets/training-session-1.jpg',
-    uploadedBy: 'Coach Johnson',
-    uploadDate: '2024-03-10',
-    views: 420,
-    status: 'published'
-  },
-  {
-    id: '3',
-    title: 'Team Photo 2024',
-    description: 'Official team photo for the 2024 season',
-    category: 'Team',
-    imageUrl: '/src/assets/team-photo-1.jpg',
-    uploadedBy: 'Media Team',
-    uploadDate: '2024-03-05',
-    views: 1200,
-    status: 'published'
-  },
-];
+import { useEffect } from 'react';
+import { galleryAPI } from '@/services/api';
 
 const GalleryManagement = () => {
-  const [gallery, setGallery] = useState<GalleryItem[]>(mockGallery);
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const data = await galleryAPI.getAll();
+        setGallery(data);
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to fetch gallery', variant: 'destructive' });
+      }
+    };
+    fetchGallery();
+  }, [toast]);
+// ...existing code...
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -75,9 +54,8 @@ const GalleryManagement = () => {
 
   const handleDeleteImage = async (imageId: string) => {
     try {
-      // TODO: Replace with your backend API call
+      await galleryAPI.delete(imageId);
       setGallery(gallery.filter(item => item.id !== imageId));
-      
       toast({
         title: "Image deleted",
         description: "The image has been removed from the gallery",
@@ -93,15 +71,13 @@ const GalleryManagement = () => {
 
   const handleToggleStatus = async (imageId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'private' : 'published';
-    
     try {
-      // TODO: Replace with your backend API call
+      await galleryAPI.update(imageId, { status: newStatus });
       setGallery(gallery.map(item => 
         item.id === imageId 
           ? { ...item, status: newStatus as 'published' | 'private' }
           : item
       ));
-      
       toast({
         title: `Image ${newStatus}`,
         description: `The image is now ${newStatus}`,

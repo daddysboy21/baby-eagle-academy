@@ -1,29 +1,42 @@
-// API service functions - replace these with your actual backend endpoints
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+
+
+
+
+
+
+// API service functions
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050/api';
+
+// Helper for error handling
+async function handleResponse(response: Response) {
+  const data = await response.json();
+  if (!response.ok) {
+    throw (data && data.error) ? new Error(data.error) : new Error('API Error');
+  }
+  return data;
+}
 
 // Auth API
 export const authAPI = {
   login: async (email: string, password: string) => {
-    // TODO: Replace with your backend endpoint
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
-    return response.json();
+    return handleResponse(response);
   },
 
   verifyToken: async (token: string) => {
-    // TODO: Replace with your backend endpoint
     const response = await fetch(`${API_BASE_URL}/auth/verify`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    return response.json();
+    return handleResponse(response);
   },
 
   logout: async () => {
-    // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     await fetch(`${API_BASE_URL}/auth/logout`, {
       method: 'POST',
@@ -32,32 +45,82 @@ export const authAPI = {
   }
 };
 
+// Applications API
+export const applicationsAPI = {
+  submitPlayer: async (applicationData: FormData) => {
+    const response = await fetch(`${API_BASE_URL}/applications/player`, {
+      method: 'POST',
+      body: applicationData
+    });
+    return handleResponse(response);
+  },
+
+  submitPartner: async (applicationData: Record<string, unknown>) => {
+    const response = await fetch(`${API_BASE_URL}/applications/partner`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(applicationData)
+    });
+    return handleResponse(response);
+  },
+
+  submitFan: async (applicationData: FormData) => {
+    const response = await fetch(`${API_BASE_URL}/applications/fan`, {
+      method: 'POST',
+      body: applicationData
+    });
+    return handleResponse(response);
+  }
+};
+
+// System Settings API
+export const settingsAPI = {
+  getAll: async () => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/settings`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return handleResponse(response);
+  },
+
+  update: async (key: string, value: string) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ key, value })
+    });
+    return handleResponse(response);
+  }
+};
+
 // Users API
 export const usersAPI = {
   getAll: async () => {
-    // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/users`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    return response.json();
+    return handleResponse(response);
   },
 
-  create: async (userData: any) => {
-    // TODO: Replace with your backend endpoint
+  create: async (userData: Record<string, unknown>) => {
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}` 
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(userData)
     });
-    return response.json();
+    return handleResponse(response);
   },
 
-  update: async (id: string, userData: any) => {
+  update: async (id: string, userData: Record<string, unknown>) => {
     // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
@@ -90,7 +153,7 @@ export const playersAPI = {
     return response.json();
   },
 
-  create: async (playerData: any) => {
+  create: async (playerData: Record<string, unknown>) => {
     // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/players`, {
@@ -104,7 +167,7 @@ export const playersAPI = {
     return response.json();
   },
 
-  update: async (id: string, playerData: any) => {
+  update: async (id: string, playerData: Record<string, unknown>) => {
     // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/players/${id}`, {
@@ -137,7 +200,7 @@ export const staffAPI = {
     return response.json();
   },
 
-  create: async (staffData: any) => {
+  create: async (staffData: Record<string, unknown>) => {
     // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/staff`, {
@@ -151,7 +214,7 @@ export const staffAPI = {
     return response.json();
   },
 
-  update: async (id: string, staffData: any) => {
+  update: async (id: string, staffData: Record<string, unknown>) => {
     // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/staff/${id}`, {
@@ -184,7 +247,7 @@ export const newsAPI = {
     return response.json();
   },
 
-  create: async (newsData: any) => {
+  create: async (newsData: Record<string, unknown>) => {
     // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/news`, {
@@ -198,7 +261,7 @@ export const newsAPI = {
     return response.json();
   },
 
-  update: async (id: string, newsData: any) => {
+  update: async (id: string, newsData: Record<string, unknown>) => {
     // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/news/${id}`, {
@@ -248,6 +311,19 @@ export const galleryAPI = {
     const response = await fetch(`${API_BASE_URL}/gallery/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.json();
+  },
+
+  update: async (id: string, updateData: Record<string, unknown>) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/gallery/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updateData)
     });
     return response.json();
   }

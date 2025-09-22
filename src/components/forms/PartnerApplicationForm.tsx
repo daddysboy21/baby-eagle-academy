@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { applicationsAPI } from '@/services/api';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -35,13 +36,11 @@ const PartnerApplicationForm = () => {
 
   const onSubmit = async (data: PartnerFormData) => {
     try {
-      console.log("Partnership application data:", data);
-      
+      await applicationsAPI.submitPartner(data);
       toast({
         title: "Partnership Application Submitted!",
         description: "Thank you for your interest in partnering with us. We'll be in touch soon!",
       });
-      
       setIsOpen(false);
       form.reset();
     } catch (error) {

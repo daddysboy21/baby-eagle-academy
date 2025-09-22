@@ -141,34 +141,25 @@ const GalleryUpload = () => {
                   multiple
                   accept="image/*"
                   onChange={handleFileSelect}
-                  className="mt-4"
                 />
               </div>
-              
               {/* Image Previews */}
               {previews.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="font-medium">Selected Images ({previews.length})</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {previews.map((preview, index) => (
-                      <div key={index} className="relative group">
-                        <img 
-                          src={preview} 
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded border"
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="destructive"
-                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeFile(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                  {previews.map((src, index) => (
+                    <div key={index} className="relative group border rounded-lg overflow-hidden">
+                      <img src={src} alt={`Preview ${index + 1}`} className="w-full h-32 object-cover" />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeFile(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

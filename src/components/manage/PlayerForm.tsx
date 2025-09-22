@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { playersAPI } from '@/services/api';
 
 const PlayerForm = () => {
   const navigate = useNavigate();
@@ -46,16 +47,11 @@ const PlayerForm = () => {
     e.preventDefault();
     
     try {
-      // TODO: Replace with your backend API call
-      // const response = await fetch('/api/players', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
+      // Send to backend
+      const created = await playersAPI.create(formData);
       toast({
         title: "Player added successfully",
-        description: `${formData.name} has been added to the team`,
+        description: `${created.name} has been added to the team`,
       });
       
       navigate('/manage/players');

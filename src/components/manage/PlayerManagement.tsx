@@ -18,16 +18,27 @@ interface Player {
   createdAt: string;
 }
 
-// Mock data - replace with API calls
-const mockPlayers: Player[] = [
-  { id: '1', name: 'John Doe', position: 'Forward', age: 23, nationality: 'Ghana', jerseyNumber: 9, status: 'active', createdAt: '2024-01-01' },
-  { id: '2', name: 'Michael Smith', position: 'Midfielder', age: 25, nationality: 'Nigeria', jerseyNumber: 10, status: 'active', createdAt: '2024-01-15' },
-  { id: '3', name: 'David Wilson', position: 'Defender', age: 22, nationality: 'Ghana', jerseyNumber: 4, status: 'injured', createdAt: '2024-02-01' },
-];
+
+import { useEffect } from 'react';
+import { playersAPI } from '@/services/api';
 
 const PlayerManagement = () => {
-  const [players, setPlayers] = useState<Player[]>(mockPlayers);
+  const [players, setPlayers] = useState<Player[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      try {
+        const data = await playersAPI.getAll();
+        setPlayers(data);
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to fetch players', variant: 'destructive' });
+      }
+    };
+    fetchPlayers();
+  }, [toast]);
+
+// ...existing code...
 
   const getStatusColor = (status: string) => {
     switch (status) {

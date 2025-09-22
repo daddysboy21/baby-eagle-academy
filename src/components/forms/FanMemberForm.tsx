@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { applicationsAPI } from '@/services/api';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -45,13 +46,20 @@ const FanMemberForm = () => {
 
   const onSubmit = async (data: FanMemberFormData) => {
     try {
-      console.log("Fan member application data:", { ...data, photo: photoFile });
-      
+      // Prepare FormData for backend API
+      const formDataToSend = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === 'photo' && photoFile) {
+          formDataToSend.append('photo', photoFile);
+        } else if (value !== undefined) {
+          formDataToSend.append(key, String(value));
+        }
+      });
+      await applicationsAPI.submitFan(formDataToSend);
       toast({
         title: "Membership Application Submitted!",
         description: "Welcome to the Baby Eagle family! We'll send your membership details soon.",
       });
-      
       setIsOpen(false);
       form.reset();
       setPhotoFile(null);
