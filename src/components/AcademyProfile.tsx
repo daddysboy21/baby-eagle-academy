@@ -370,7 +370,7 @@ const AcademyProfile = () => {
             <FanMemberForm />
           </div>
 
-          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-sm mx-auto px-[15px] py-[2px]">
+          <div className="bg-primary-dark/50 backdrop-blur-sm p-8 rounded-lg max-w-sm mx-auto px-[15px] py-[10px]">
             <h3 className="text-sm mb-2">POWERED BY:</h3>
             <img src={ABK} alt="ABK Logo" className="mx-auto h-10 rounded-full" />
           </div>
