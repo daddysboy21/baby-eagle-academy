@@ -84,22 +84,22 @@ const FanMemberForm = () => {
           Join as Fan Member
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-xs sm:max-w-md max-h-[90vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Fan Membership Form</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">Fan Membership Form</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
             <FormField
               control={form.control}
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel className="text-sm">Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your full name" {...field} />
+                    <Input placeholder="Enter your full name" {...field} className="text-sm" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -109,11 +109,11 @@ const FanMemberForm = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-sm">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Enter your email" {...field} />
+                    <Input type="email" placeholder="Enter your email" {...field} className="text-sm" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -123,11 +123,11 @@ const FanMemberForm = () => {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel className="text-sm">Phone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your phone number" {...field} />
+                    <Input placeholder="Enter your phone number" {...field} className="text-sm" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -137,22 +137,22 @@ const FanMemberForm = () => {
               name="whyJoin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Why You Want to Join</FormLabel>
+                  <FormLabel className="text-sm">Why You Want to Join</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Tell us why you want to join the Baby Eagle family..."
-                      className="min-h-[80px]"
+                      className="min-h-[60px] sm:min-h-[80px] text-sm"
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
             <div className="space-y-2">
-              <Label>Passport Size Photo</Label>
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
+              <Label className="text-sm">Passport Size Photo</Label>
+              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-3 sm:p-4 text-center">
                 <input
                   type="file"
                   accept="image/*"
@@ -164,15 +164,15 @@ const FanMemberForm = () => {
                   htmlFor="fan-photo-upload"
                   className="cursor-pointer flex flex-col items-center gap-2"
                 >
-                  <Upload className="w-8 h-8 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
+                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
+                  <span className="text-xs sm:text-sm text-muted-foreground text-center">
                     {photoFile ? photoFile.name : "Click to upload passport photo"}
                   </span>
                 </label>
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full text-sm">
               Join Baby Eagle Family
             </Button>
           </form>

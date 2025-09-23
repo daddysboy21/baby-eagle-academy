@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Eye, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Calendar, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import NewsForm from './NewsForm';
@@ -136,110 +136,121 @@ const NewsManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">News Management</h2>
-          <p className="text-muted-foreground">Manage news articles and announcements</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 sm:mb-8">
+          <Link to="/manage">
+            <Button variant="outline" size="sm" className="w-fit">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">News Management</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">Manage news articles and announcements</p>
+          </div>
+          
+          <Link to="/manage/news/add">
+            <Button size="sm" className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Add News Article
+            </Button>
+          </Link>
         </div>
-        
-        <Link to="/manage/news/add">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add News Article
-          </Button>
-        </Link>
-      </div>
 
-      <div className="space-y-4">
-        {news.map((article) => (
-          <Card key={article.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg mb-2">{article.title}</CardTitle>
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                    {article.excerpt}
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="space-y-4 sm:space-y-6">
+          {news.map((article) => (
+            <Card key={article.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div className="flex-1">
+                      <CardTitle className="text-base sm:text-lg lg:text-xl mb-2 leading-tight">{article.title}</CardTitle>
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3">
+                        {article.excerpt}
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-row sm:flex-col gap-2">
+                      <Badge className={`${getCategoryColor(article.category)} text-white text-xs w-fit`}>
+                        {article.category}
+                      </Badge>
+                      <Badge className={`${getStatusColor(article.status)} text-white text-xs w-fit`}>
+                        {article.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
+                      <Calendar className="h-3 w-3 flex-shrink-0" />
                       {article.publishDate || 'Not published'}
                     </span>
                     <span>By {article.author}</span>
                     {article.status === 'published' && (
                       <span className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
+                        <Eye className="h-3 w-3 flex-shrink-0" />
                         {article.views} views
                       </span>
                     )}
                   </div>
                 </div>
-                
-                <div className="flex flex-col gap-2 items-end">
-                  <div className="flex gap-2">
-                    <Badge className={`${getCategoryColor(article.category)} text-white text-xs`}>
-                      {article.category}
-                    </Badge>
-                    <Badge className={`${getStatusColor(article.status)} text-white text-xs`}>
-                      {article.status}
-                    </Badge>
-                  </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button variant="outline" size="sm" className="text-xs" onClick={() => handleEditNews(article)}>
+                    <Edit className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => handleToggleStatus(article.id, article.status)}
+                  >
+                    {article.status === 'published' ? 'Unpublish' : 'Publish'}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-destructive hover:text-destructive text-xs"
+                    onClick={() => handleDeleteNews(article.id)}
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Delete
+                  </Button>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleEditNews(article)}>
-                  <Edit className="h-3 w-3 mr-1" />
-                  Edit
-                </Button>
-      {/* Edit News Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit News Article</DialogTitle>
-            <DialogDescription>Update news article information below.</DialogDescription>
-          </DialogHeader>
-          {editingNews && (
-            <NewsForm
-              mode="edit"
-              initialData={editingNews}
-              onSuccess={handleNewsUpdated}
-              onCancel={handleEditDialogClose}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleToggleStatus(article.id, article.status)}
-                >
-                  {article.status === 'published' ? 'Unpublish' : 'Publish'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => handleDeleteNews(article.id)}
-                >
-                  <Trash2 className="h-3 w-3 mr-1" />
-                  Delete
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      {news.length === 0 && (
-        <div className="text-center py-12">
-          <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No news articles found</h3>
-          <p className="text-muted-foreground mb-4">Create your first news article to get started</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
+        
+        {/* Edit News Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-xs sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Edit News Article</DialogTitle>
+              <DialogDescription>Update news article information below.</DialogDescription>
+            </DialogHeader>
+            {editingNews && (
+              <NewsForm
+                mode="edit"
+                initialData={editingNews}
+                onSuccess={handleNewsUpdated}
+                onCancel={handleEditDialogClose}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+        
+        {news.length === 0 && (
+          <div className="text-center py-12">
+            <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-base sm:text-lg font-medium mb-2">No news articles found</h3>
+            <p className="text-muted-foreground mb-4 text-sm sm:text-base">Create your first news article to get started</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -95,24 +95,24 @@ const PlayerApplicationForm = () => {
           Join as Player
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-xs sm:max-w-md max-h-[90vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Player Application Form</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">Player Application Form</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
             {/* Full Name & Age */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="fullName"
                 render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Full Name</FormLabel>
+                  <FormItem>
+                    <FormLabel className="text-sm">Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your full name" {...field} />
+                      <Input placeholder="Enter your full name" {...field} className="text-sm" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -120,12 +120,42 @@ const PlayerApplicationForm = () => {
                 control={form.control}
                 name="age"
                 render={({ field }) => (
-                  <FormItem className="sm:w-24">
-                    <FormLabel>Age</FormLabel>
+                  <FormItem>
+                    <FormLabel className="text-sm">Age</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Age" {...field} />
+                      <Input type="number" placeholder="Age" {...field} className="text-sm" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Contact & Email */}
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <FormField
+                control={form.control}
+                name="contact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm">Contact Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your contact number" {...field} className="text-sm" />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm">Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="Enter your email" {...field} className="text-sm" />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -137,11 +167,11 @@ const PlayerApplicationForm = () => {
               name="schoolCommunity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>School/Community</FormLabel>
+                  <FormLabel className="text-sm">School/Community</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your school or community" {...field} />
+                    <Input placeholder="Enter your school or community" {...field} className="text-sm" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -152,10 +182,10 @@ const PlayerApplicationForm = () => {
               name="position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Football Position</FormLabel>
+                  <FormLabel className="text-sm">Football Position</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-sm">
                         <SelectValue placeholder="Select your preferred position" />
                       </SelectTrigger>
                     </FormControl>
@@ -167,7 +197,7 @@ const PlayerApplicationForm = () => {
                       <SelectItem value="winger">Winger</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -178,8 +208,8 @@ const PlayerApplicationForm = () => {
               name="photo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Passport Size Photo</FormLabel>
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center">
+                  <FormLabel className="text-sm">Passport Size Photo</FormLabel>
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-3 sm:p-4 text-center">
                     <input
                       type="file"
                       accept="image/*"
@@ -194,19 +224,19 @@ const PlayerApplicationForm = () => {
                       htmlFor="photo-upload"
                       className="cursor-pointer flex flex-col items-center gap-2"
                     >
-                      <Upload className="w-8 h-8 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
+                      <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
+                      <span className="text-xs sm:text-sm text-muted-foreground text-center">
                         {field.value ? (field.value as File).name : "Click to upload passport photo"}
                       </span>
                     </label>
                   </div>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
             {/* Submit */}
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full text-sm">
               Submit Application
             </Button>
           </form>

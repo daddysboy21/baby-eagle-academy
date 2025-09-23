@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole } from '@/contexts/AuthContext';
-import { UserPlus, Edit, Trash2, Shield, Users, Camera } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Shield, Users, Camera, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface User {
   id: string;
@@ -190,100 +191,108 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">User Management</h2>
-          <p className="text-muted-foreground">Manage system users and their roles</p>
-        </div>
-        
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Add User
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 sm:mb-8">
+          <Link to="/manage">
+            <Button variant="outline" size="sm" className="w-fit">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>
-                Create a new user account with appropriate permissions
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                  placeholder="Enter full name"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  placeholder="Enter email address"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Select value={newUser.role} onValueChange={(value: UserRole) => setNewUser({ ...newUser, role: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="media-person">Media Person</SelectItem>
-                    <SelectItem value="co-admin">Co-Admin</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddUser} disabled={!newUser.name || !newUser.email}>
+          </Link>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">User Management</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">Manage system users and their roles</p>
+          </div>
+          
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="w-full sm:w-auto">
+                <UserPlus className="h-4 w-4 mr-2" />
                 Add User
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {users.map((user) => (
-          <Card key={user.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{user.name}</CardTitle>
-                <Badge className={`${getRoleColor(user.role)} text-white`}>
-                  <div className="flex items-center gap-1">
-                    {getRoleIcon(user.role)}
-                    {user.role}
-                  </div>
-                </Badge>
+            </DialogTrigger>
+            <DialogContent className="max-w-xs sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Add New User</DialogTitle>
+                <DialogDescription>
+                  Create a new user account with appropriate permissions
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    value={newUser.name}
+                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    placeholder="Enter full name"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    placeholder="Enter email address"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="role">Role</Label>
+                  <Select value={newUser.role} onValueChange={(value: UserRole) => setNewUser({ ...newUser, role: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="media-person">Media Person</SelectItem>
+                      <SelectItem value="co-admin">Co-Admin</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                <p className="text-xs text-muted-foreground">
-                  Added: {new Date(user.createdAt).toLocaleDateString()}
-                </p>
+              
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddUser} disabled={!newUser.name || !newUser.email}>
+                  Add User
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {users.map((user) => (
+            <Card key={user.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex flex-col gap-2">
+                  <CardTitle className="text-base sm:text-lg">{user.name}</CardTitle>
+                  <Badge className={`${getRoleColor(user.role)} text-white w-fit text-xs`}>
+                    <div className="flex items-center gap-1">
+                      {getRoleIcon(user.role)}
+                      {user.role}
+                    </div>
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2 text-xs sm:text-sm">
+                  <p className="text-muted-foreground truncate">{user.email}</p>
+                  <p className="text-muted-foreground">
+                    Added: {new Date(user.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
                 
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditUser(user)}>
+                  <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleEditUser(user)}>
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
                   </Button>
@@ -296,52 +305,52 @@ const UserManagement = () => {
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      {/* Add User Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>Create a new user account with appropriate permissions</DialogDescription>
-          </DialogHeader>
-          <UserForm
-            mode="add"
-            onSuccess={handleAddUserSuccess}
-            onCancel={() => setIsAddDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>Update user information below.</DialogDescription>
-          </DialogHeader>
-          {editingUser && (
-            <UserForm
-              mode="edit"
-              initialData={editingUser}
-              onSuccess={handleEditUserSuccess}
-              onCancel={() => setIsEditDialogOpen(false)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {users.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No users found</h3>
-          <p className="text-muted-foreground mb-4">Add your first user to get started</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
+        
+        {/* Add User Dialog */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogContent className="max-w-xs sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Add New User</DialogTitle>
+              <DialogDescription>Create a new user account with appropriate permissions</DialogDescription>
+            </DialogHeader>
+            <UserForm
+              mode="add"
+              onSuccess={handleAddUserSuccess}
+              onCancel={() => setIsAddDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit User Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-xs sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>Update user information below.</DialogDescription>
+            </DialogHeader>
+            {editingUser && (
+              <UserForm
+                mode="edit"
+                initialData={editingUser}
+                onSuccess={handleEditUserSuccess}
+                onCancel={() => setIsEditDialogOpen(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {users.length === 0 && (
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-base sm:text-lg font-medium mb-2">No users found</h3>
+            <p className="text-muted-foreground mb-4 text-sm sm:text-base">Add your first user to get started</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

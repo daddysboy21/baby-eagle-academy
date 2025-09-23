@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Edit, Trash2, Users } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Users, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PlayerForm from './PlayerForm';
 
@@ -102,52 +102,60 @@ const PlayerManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Player Management</h2>
-          <p className="text-muted-foreground">Manage team players and their information</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 sm:mb-8">
+          <Link to="/manage">
+            <Button variant="outline" size="sm" className="w-fit">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Player Management</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">Manage team players and their information</p>
+          </div>
+          
+          <Link to="/manage/players/add">
+            <Button size="sm" className="w-full sm:w-auto">
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Player
+            </Button>
+          </Link>
         </div>
-        
-        <Link to="/manage/players/add">
-          <Button>
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Player
-          </Button>
-        </Link>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {players.map((player) => (
-          <Card key={player.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{player.name}</CardTitle>
-                <Badge className={`${getStatusColor(player.status)} text-white`}>
-                  {player.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Position:</span>
-                  <span className="text-sm font-medium">{player.position}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {players.map((player) => (
+            <Card key={player.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <CardTitle className="text-base sm:text-lg">{player.name}</CardTitle>
+                  <Badge className={`${getStatusColor(player.status)} text-white w-fit text-xs`}>
+                    {player.status}
+                  </Badge>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Jersey #:</span>
-                  <span className="text-sm font-medium">{player.jerseyNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Age:</span>
-                  <span className="text-sm font-medium">{player.age}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Nationality:</span>
-                  <span className="text-sm font-medium">{player.nationality}</span>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2 text-xs sm:text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Position:</span>
+                    <span className="font-medium">{player.position}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Jersey #:</span>
+                    <span className="font-medium">{player.jerseyNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Age:</span>
+                    <span className="font-medium">{player.age}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Nationality:</span>
+                    <span className="font-medium truncate">{player.nationality}</span>
+                  </div>
                 </div>
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditPlayer(player)}>
+                  <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleEditPlayer(player)}>
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
                   </Button>
@@ -160,36 +168,37 @@ const PlayerManagement = () => {
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      {/* Edit Player Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Player</DialogTitle>
-            <DialogDescription>Update player information below.</DialogDescription>
-          </DialogHeader>
-          {editingPlayer && (
-            <PlayerForm
-              mode="edit"
-              initialData={editingPlayer}
-              onSuccess={handlePlayerUpdated}
-              onCancel={handleEditDialogClose}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-      
-      {players.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No players found</h3>
-          <p className="text-muted-foreground mb-4">Add your first player to get started</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
+      
+        {/* Edit Player Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-xs sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Edit Player</DialogTitle>
+              <DialogDescription>Update player information below.</DialogDescription>
+            </DialogHeader>
+            {editingPlayer && (
+              <PlayerForm
+                mode="edit"
+                initialData={editingPlayer}
+                onSuccess={handlePlayerUpdated}
+                onCancel={handleEditDialogClose}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+        
+        {players.length === 0 && (
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-base sm:text-lg font-medium mb-2">No players found</h3>
+            <p className="text-muted-foreground mb-4 text-sm sm:text-base">Add your first player to get started</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

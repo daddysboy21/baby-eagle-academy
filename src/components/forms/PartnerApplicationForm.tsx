@@ -60,22 +60,22 @@ const PartnerApplicationForm = () => {
           Partner With Us
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-xs sm:max-w-md max-h-[90vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Partnership Application Form</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">Partnership Application Form</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
             <FormField
               control={form.control}
               name="fullNameCompany"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name / Company</FormLabel>
+                  <FormLabel className="text-sm">Full Name / Company</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your name or company name" {...field} />
+                    <Input placeholder="Enter your name or company name" {...field} className="text-sm" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -85,11 +85,11 @@ const PartnerApplicationForm = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-sm">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Enter your email" {...field} />
+                    <Input type="email" placeholder="Enter your email" {...field} className="text-sm" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -99,11 +99,11 @@ const PartnerApplicationForm = () => {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel className="text-sm">Phone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your phone number" {...field} />
+                    <Input placeholder="Enter your phone number" {...field} className="text-sm" />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -113,10 +113,10 @@ const PartnerApplicationForm = () => {
               name="partnershipInterest"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Partnership Interest</FormLabel>
+                  <FormLabel className="text-sm">Partnership Interest</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-sm">
                         <SelectValue placeholder="Select your partnership interest" />
                       </SelectTrigger>
                     </FormControl>
@@ -127,12 +127,12 @@ const PartnerApplicationForm = () => {
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full text-sm">
               Submit Application
             </Button>
           </form>
