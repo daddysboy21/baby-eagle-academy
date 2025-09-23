@@ -28,17 +28,17 @@ const Gallery = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-hero text-primary-foreground py-16">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center gap-4 mb-6">
+      <div className="bg-gradient-hero text-primary-foreground py-8 sm:py-12 lg:py-16">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <Link to="/">
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-white/20">
-                <ArrowLeft className="w-5 h-5" />
+              <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10">
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </Link>
-            <h1 className="text-4xl lg:text-6xl font-bold">Gallery</h1>
+            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-bold">Gallery</h1>
           </div>
-          <p className="text-xl opacity-90 max-w-2xl">
+          <p className="text-sm sm:text-lg lg:text-xl opacity-90 max-w-2xl">
             Explore moments that define Baby Eagle Football Academy - from training sessions to victories, 
             celebrating our journey together.
           </p>
@@ -46,10 +46,10 @@ const Gallery = () => {
       </div>
 
       {/* Gallery Grid */}
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {galleryImages.map((image, index) => (
-            <Card key={image.id || index} className="overflow-hidden hover:shadow-glow transition-all duration-300 cursor-pointer">
+            <Card key={image.id || index} className="overflow-hidden hover:shadow-glow transition-all duration-300 cursor-pointer hover:scale-[1.02] sm:hover:scale-105">
               <div 
                 className="aspect-video overflow-hidden"
                 onClick={() => setSelectedImage(index)}
@@ -60,9 +60,9 @@ const Gallery = () => {
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-primary mb-2 text-lg">{image.title}</h3>
-                <p className="text-muted-foreground">{image.description}</p>
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <h3 className="font-semibold text-primary mb-1 sm:mb-2 text-sm sm:text-base lg:text-lg line-clamp-2">{image.title}</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm line-clamp-3">{image.description}</p>
               </CardContent>
             </Card>
           ))}
@@ -72,26 +72,27 @@ const Gallery = () => {
       {/* Full-size image modal */}
       {selectedImage !== null && galleryImages[selectedImage] && (
         <Dialog open={selectedImage !== null} onOpenChange={() => setSelectedImage(null)}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-auto">
             <DialogHeader>
-              <div className="flex justify-between items-center">
-                <DialogTitle>{galleryImages[selectedImage].title}</DialogTitle>
+              <div className="flex justify-between items-start gap-4">
+                <DialogTitle className="text-sm sm:text-base lg:text-lg leading-tight pr-8">{galleryImages[selectedImage].title}</DialogTitle>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setSelectedImage(null)}
+                  className="h-8 w-8 flex-shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <img
                 src={galleryImages[selectedImage].imageUrl}
                 alt={galleryImages[selectedImage].title}
-                className="w-full h-auto rounded-lg"
+                className="w-full h-auto rounded-lg max-h-[60vh] object-contain"
               />
-              <p className="text-muted-foreground">{galleryImages[selectedImage].description}</p>
+              <p className="text-muted-foreground text-sm sm:text-base">{galleryImages[selectedImage].description}</p>
             </div>
           </DialogContent>
         </Dialog>

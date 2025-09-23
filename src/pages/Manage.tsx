@@ -40,44 +40,44 @@ const Manage = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/" className="font-bold text-xl text-primary">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Link to="/" className="font-bold text-lg sm:text-xl text-primary">
                 BEFA
               </Link>
-              <Badge className={getRoleColor(user?.role || '')}>
+              <Badge className={`${getRoleColor(user?.role || '')} text-xs px-2 py-1`}>
                 {user?.role?.toUpperCase()}
               </Badge>
             </div>
             
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+              <span className="text-xs sm:text-sm text-muted-foreground">
                 Welcome, {user?.name}
               </span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={logout}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-xs sm:text-sm"
               >
-                <LogOut className="h-4 w-4" />
-                Logout
+                <LogOut className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Management Dashboard</h1>
-          <p className="text-muted-foreground">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Management Dashboard</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Manage BEFA content and users based on your role
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* User Management */}
           {canManageUsers && (
             <Card className="hover:shadow-lg transition-shadow">

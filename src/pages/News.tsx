@@ -50,53 +50,51 @@ const News = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center gap-4 mb-8">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 sm:mb-8">
           <Link to="/">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-fit">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
           </Link>
-          <div>
-            <h1 className="text-4xl font-bold text-foreground">Academy News</h1>
-            <p className="text-muted-foreground mt-2">Stay updated with the latest news and achievements from Baby Eagle Football Academy</p>
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Academy News</h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">Stay updated with the latest news and achievements from Baby Eagle Football Academy</p>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {newsArticles.map((article) => (
-            <Card key={article.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={getCategoryColor(article.category)}>
-                        {article.category}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-xl lg:text-2xl leading-tight">
-                      {article.title}
-                    </CardTitle>
-                    <p className="text-muted-foreground mt-2 text-sm lg:text-base">
-                      {article.excerpt}
-                    </p>
+            <Card key={article.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={getCategoryColor(article.category)} className="text-xs">
+                      {article.category}
+                    </Badge>
                   </div>
+                  <CardTitle className="text-lg sm:text-xl lg:text-2xl leading-tight">
+                    {article.title}
+                  </CardTitle>
+                  <p className="text-muted-foreground text-sm sm:text-base">
+                    {article.excerpt}
+                  </p>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <CardContent className="pt-0">
+                <div className="pt-3 border-t">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      <User className="w-4 h-4" />
+                      <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                       <span>{article.author}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                       <span>{formatDate(article.publishDate)}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                       <span>{article.views} views</span>
                     </div>
                   </div>
@@ -106,13 +104,13 @@ const News = () => {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">Stay Connected</h3>
-            <p className="text-muted-foreground mb-4">
+        <div className="mt-8 sm:mt-12 text-center">
+          <Card className="p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold mb-2">Stay Connected</h3>
+            <p className="text-muted-foreground mb-4 text-sm sm:text-base">
               Want to receive the latest news and updates from Baby Eagle Football Academy?
             </p>
-            <Button>Subscribe to Newsletter</Button>
+            <Button className="w-full sm:w-auto">Subscribe to Newsletter</Button>
           </Card>
         </div>
       </div>
