@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import type { AuthContextType } from '@/contexts/AuthContext';
 import { UserRole } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -13,7 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requiredRoles = [] 
 }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuth() as AuthContextType;
 
   if (isLoading) {
     return (

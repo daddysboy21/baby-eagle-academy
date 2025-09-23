@@ -10,20 +10,41 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { staffAPI } from '@/services/api';
 
-const StaffForm = () => {
+
+interface Staff {
+  id?: string;
+  name: string;
+  role: string;
+  department: string;
+  experience: number;
+  email: string;
+  phone: string;
+  status: 'active' | 'inactive';
+  createdAt?: string;
+  qualifications?: string;
+  bio?: string;
+}
+
+interface StaffFormProps {
+  mode?: 'add' | 'edit';
+  initialData?: Staff;
+  onSuccess?: (staff: Staff) => void;
+  onCancel?: () => void;
+}
+
+const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSuccess, onCancel }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
   const [formData, setFormData] = useState({
-    name: '',
-    role: '',
-    department: '',
-    experience: '',
-    email: '',
-    phone: '',
-    qualifications: '',
-    bio: '',
-    status: 'active'
+    name: initialData?.name || '',
+    role: initialData?.role || '',
+    department: initialData?.department || '',
+    experience: initialData?.experience?.toString() || '',
+    email: initialData?.email || '',
+    phone: initialData?.phone || '',
+    qualifications: initialData?.qualifications || '',
+    bio: initialData?.bio || '',
+    status: initialData?.status || 'active',
   });
 
   const departments = ['Technical', 'Medical', 'Administrative', 'Support'];
@@ -44,18 +65,31 @@ const StaffForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
-      // Send to backend
-      const created = await staffAPI.create(formData);
-      toast({
-        title: "Staff member added successfully",
-        description: `${created.name} has been added to the team`,
-      });
-      navigate('/manage/staff');
+      // Convert numeric fields to numbers as required by backend
+      const payload = {
+        ...formData,
+        experience: formData.experience ? Number(formData.experience) : undefined,
+      };
+      let result;
+      if (mode === 'edit' && initialData?.id) {
+        result = await staffAPI.update(initialData.id, payload);
+        toast({
+          title: "Staff member updated successfully",
+          description: `${result.name} has been updated`,
+        });
+        if (onSuccess) onSuccess(result);
+      } else {
+        result = await staffAPI.create(payload);
+        toast({
+          title: "Staff member added successfully",
+          description: `${result.name} has been added to the team`,
+        });
+        navigate('/manage/staff');
+      }
     } catch (error) {
       toast({
-        title: "Error adding staff member",
+        title: `Error ${mode === 'edit' ? 'updating' : 'adding'} staff member`,
         description: "Please try again later",
         variant: "destructive",
       });
@@ -66,16 +100,17 @@ const StaffForm = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate('/manage/staff')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h2 className="text-2xl font-bold">Add New Staff Member</h2>
-          <p className="text-muted-foreground">Add a new staff member to the team</p>
+      {mode === 'add' ? (
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate('/manage/staff')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold">Add New Staff Member</h2>
+            <p className="text-muted-foreground">Add a new staff member to the team</p>
+          </div>
         </div>
-      </div>
-
+      ) : null}
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Staff Information</CardTitle>
@@ -186,11 +221,13 @@ const StaffForm = () => {
             </div>
             
             <div className="flex gap-4">
-              <Button type="button" variant="outline" onClick={() => navigate('/manage/staff')}>
-                Cancel
-              </Button>
+              {mode === 'add' ? (
+                <Button type="button" variant="outline" onClick={() => navigate('/manage/staff')}>Cancel</Button>
+              ) : (
+                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+              )}
               <Button type="submit" disabled={!formData.name || !formData.department || !formData.role || !formData.email}>
-                Add Staff Member
+                {mode === 'edit' ? 'Update Staff Member' : 'Add Staff Member'}
               </Button>
             </div>
           </form>

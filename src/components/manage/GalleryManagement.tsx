@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+
 import { Upload, Edit, Trash2, Eye, Calendar, Image } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import GalleryForm from './GalleryForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 interface GalleryItem {
   id: string;
@@ -23,7 +26,26 @@ import { galleryAPI } from '@/services/api';
 
 const GalleryManagement = () => {
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Add missing handlers for edit dialog
+  const handleEditItem = (item: GalleryItem) => {
+    setEditingItem(item);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingItem(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleGalleryItemUpdated = (updated: GalleryItem) => {
+    setGallery(gallery.map(g => g.id === updated.id ? updated : g));
+    handleEditDialogClose();
+    toast({ title: 'Gallery item updated', description: `${updated.title} has been updated.` });
+  };
 
   useEffect(() => {
     const fetchGallery = async () => {
@@ -53,6 +75,21 @@ const GalleryManagement = () => {
   };
 
   const handleDeleteImage = async (imageId: string) => {
+  const handleEditItem = (item: GalleryItem) => {
+    setEditingItem(item);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingItem(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleGalleryItemUpdated = (updated: GalleryItem) => {
+    setGallery(gallery.map(g => g.id === updated.id ? updated : g));
+    handleEditDialogClose();
+    toast({ title: 'Gallery item updated', description: `${updated.title} has been updated.` });
+  };
     try {
       await galleryAPI.delete(imageId);
       setGallery(gallery.filter(item => item.id !== imageId));
@@ -152,10 +189,27 @@ const GalleryManagement = () => {
                 </p>
                 
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditItem(item)}>
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
                   </Button>
+      {/* Edit Gallery Item Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Gallery Item</DialogTitle>
+            <DialogDescription>Update gallery item information below.</DialogDescription>
+          </DialogHeader>
+          {editingItem && (
+            <GalleryForm
+              mode="edit"
+              initialData={editingItem}
+              onSuccess={handleGalleryItemUpdated}
+              onCancel={handleEditDialogClose}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
                   <Button 
                     variant="outline" 
                     size="sm"

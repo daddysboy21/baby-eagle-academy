@@ -10,17 +10,38 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Eye } from 'lucide-react';
 
-const NewsForm = () => {
+
+interface NewsArticle {
+  id?: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  tags?: string;
+  status: 'published' | 'draft' | 'archived';
+  author?: string;
+  publishDate?: string;
+  views?: number;
+  createdAt?: string;
+}
+
+interface NewsFormProps {
+  mode?: 'add' | 'edit';
+  initialData?: NewsArticle;
+  onSuccess?: (news: NewsArticle) => void;
+  onCancel?: () => void;
+}
+
+const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSuccess, onCancel }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
   const [formData, setFormData] = useState({
-    title: '',
-    excerpt: '',
-    content: '',
-    category: '',
-    tags: '',
-    status: 'draft'
+    title: initialData?.title || '',
+    excerpt: initialData?.excerpt || '',
+    content: initialData?.content || '',
+    category: initialData?.category || '',
+    tags: initialData?.tags || '',
+    status: initialData?.status || 'draft',
   });
 
   const categories = [
@@ -43,16 +64,25 @@ const NewsForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Send to backend
-      await newsAPI.create(formData);
-      toast({
-        title: "News article created",
-        description: `Article "${formData.title}" has been ${formData.status === 'published' ? 'published' : 'saved as draft'}`,
-      });
-      navigate('/manage/news');
+      let result;
+      if (mode === 'edit' && initialData?.id) {
+        result = await newsAPI.update(initialData.id, formData);
+        toast({
+          title: "News article updated",
+          description: `Article "${result.title}" has been updated`,
+        });
+        if (onSuccess) onSuccess(result);
+      } else {
+        result = await newsAPI.create(formData);
+        toast({
+          title: "News article created",
+          description: `Article "${result.title}" has been ${result.status === 'published' ? 'published' : 'saved as draft'}`,
+        });
+        navigate('/manage/news');
+      }
     } catch (error) {
       toast({
-        title: "Error creating article",
+        title: `Error ${mode === 'edit' ? 'updating' : 'creating'} article`,
         description: "Please try again later",
         variant: "destructive",
       });
@@ -68,16 +98,17 @@ const NewsForm = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate('/manage/news')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h2 className="text-2xl font-bold">Create News Article</h2>
-          <p className="text-muted-foreground">Write and publish a new news article</p>
+      {mode === 'add' ? (
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate('/manage/news')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold">Create News Article</h2>
+            <p className="text-muted-foreground">Write and publish a new news article</p>
+          </div>
         </div>
-      </div>
-
+      ) : null}
       <Card className="max-w-4xl">
         <CardHeader>
           <CardTitle>Article Details</CardTitle>
@@ -148,16 +179,18 @@ const NewsForm = () => {
             </div>
             
             <div className="flex gap-4">
-              <Button type="button" variant="outline" onClick={() => navigate('/manage/news')}>
-                Cancel
-              </Button>
+              {mode === 'add' ? (
+                <Button type="button" variant="outline" onClick={() => navigate('/manage/news')}>Cancel</Button>
+              ) : (
+                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+              )}
               <Button 
                 type="submit" 
                 variant="outline"
                 disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content}
               >
                 <Save className="h-4 w-4 mr-2" />
-                Save as Draft
+                {mode === 'edit' ? 'Update Article' : 'Save as Draft'}
               </Button>
               <Button 
                 type="button"
@@ -165,7 +198,7 @@ const NewsForm = () => {
                 disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content}
               >
                 <Eye className="h-4 w-4 mr-2" />
-                Publish Article
+                {mode === 'edit' ? 'Update & Publish' : 'Publish Article'}
               </Button>
             </div>
           </form>

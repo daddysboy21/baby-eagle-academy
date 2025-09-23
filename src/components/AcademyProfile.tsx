@@ -5,6 +5,7 @@ import { Mail, Phone, Users, Trophy, Target, Heart, Award, Star, MapPin, Menu, X
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import type { AuthContextType } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-football.jpg";
 import BEFALogo from "@/assets/eagle.jpg";
 import ABK from "@/assets/abk.jpg";
@@ -14,9 +15,7 @@ import FanMemberForm from "@/components/forms/FanMemberForm";
 const AcademyProfile = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth() as AuthContextType;
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > window.innerHeight - 80) {

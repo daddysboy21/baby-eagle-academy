@@ -72,7 +72,6 @@ const GalleryUpload = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (selectedFiles.length === 0) {
       toast({
         title: "No files selected",
@@ -81,25 +80,22 @@ const GalleryUpload = () => {
       });
       return;
     }
-    
     try {
-      // TODO: Replace with your backend API call
-      // const formDataToSend = new FormData();
-      // selectedFiles.forEach(file => {
-      //   formDataToSend.append('images', file);
-      // });
-      // formDataToSend.append('data', JSON.stringify(formData));
-      
-      // const response = await fetch('/api/gallery/upload', {
-      //   method: 'POST',
-      //   body: formDataToSend
-      // });
-      
+      // Prepare FormData for backend
+      const fd = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        fd.append(key, value);
+      });
+      selectedFiles.forEach((file) => {
+        fd.append('images', file);
+      });
+      await import('@/services/api').then(({ galleryAPI }) =>
+        galleryAPI.upload(fd)
+      );
       toast({
         title: "Images uploaded successfully",
         description: `${selectedFiles.length} image(s) have been uploaded to the gallery`,
       });
-      
       navigate('/manage/gallery');
     } catch (error) {
       toast({

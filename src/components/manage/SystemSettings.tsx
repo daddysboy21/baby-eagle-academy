@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { settingsAPI } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,36 +12,22 @@ import { Settings, Save, Database, Mail, Shield, Globe } from 'lucide-react';
 const SystemSettings = () => {
   const { toast } = useToast();
   
-  const [settings, setSettings] = useState({
-    // Site Settings
-    siteName: 'BEFA - Bethel Football Academy',
-    siteDescription: 'Excellence in Football Development',
-    contactEmail: 'info@befa.com',
-    contactPhone: '+233 123 456 789',
-    address: 'Accra, Ghana',
-    
-    // Features
-    allowRegistrations: true,
-    allowGuestComments: false,
-    maintenanceMode: false,
-    enableNotifications: true,
-    
-    // Email Settings
-    smtpHost: '',
-    smtpPort: '587',
-    smtpUsername: '',
-    smtpPassword: '',
-    
-    // Security
-    sessionTimeout: '60',
-    maxLoginAttempts: '5',
-    enableTwoFactor: false,
-    
-    // Content
-    postsPerPage: '10',
-    allowFileUploads: true,
-    maxFileSize: '10',
-  });
+    const [settings, setSettings] = useState<Record<string, string | boolean> | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchSettings = async () => {
+        try {
+          const data = await settingsAPI.getAll();
+          setSettings(data);
+        } catch (error) {
+          toast({ title: 'Error', description: 'Failed to load settings', variant: 'destructive' });
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchSettings();
+    }, [toast]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setSettings(prev => ({
@@ -51,13 +38,10 @@ const SystemSettings = () => {
 
   const handleSave = async () => {
     try {
-      // TODO: Replace with your backend API call
-      // const response = await fetch('/api/settings', {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(settings)
-      // });
-      
+      if (!settings) return;
+      for (const [key, value] of Object.entries(settings)) {
+        await settingsAPI.update(String(key), String(value));
+      }
       toast({
         title: "Settings saved",
         description: "System settings have been updated successfully",
@@ -71,6 +55,9 @@ const SystemSettings = () => {
     }
   };
 
+  if (loading || !settings) {
+    return <div className="py-12 text-center text-muted-foreground">Loading settings...</div>;
+  }
   return (
     <div className="space-y-6">
       <div>
@@ -92,7 +79,7 @@ const SystemSettings = () => {
               <Label htmlFor="siteName">Site Name</Label>
               <Input
                 id="siteName"
-                value={settings.siteName}
+                value={String(settings.siteName)}
                 onChange={(e) => handleInputChange('siteName', e.target.value)}
               />
             </div>
@@ -101,7 +88,7 @@ const SystemSettings = () => {
               <Label htmlFor="siteDescription">Site Description</Label>
               <Textarea
                 id="siteDescription"
-                value={settings.siteDescription}
+                value={String(settings.siteDescription)}
                 onChange={(e) => handleInputChange('siteDescription', e.target.value)}
                 rows={3}
               />
@@ -112,7 +99,7 @@ const SystemSettings = () => {
               <Input
                 id="contactEmail"
                 type="email"
-                value={settings.contactEmail}
+                value={String(settings.contactEmail)}
                 onChange={(e) => handleInputChange('contactEmail', e.target.value)}
               />
             </div>
@@ -121,7 +108,7 @@ const SystemSettings = () => {
               <Label htmlFor="contactPhone">Contact Phone</Label>
               <Input
                 id="contactPhone"
-                value={settings.contactPhone}
+                value={String(settings.contactPhone)}
                 onChange={(e) => handleInputChange('contactPhone', e.target.value)}
               />
             </div>
@@ -130,7 +117,7 @@ const SystemSettings = () => {
               <Label htmlFor="address">Address</Label>
               <Textarea
                 id="address"
-                value={settings.address}
+                value={String(settings.address)}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 rows={2}
               />
@@ -153,7 +140,7 @@ const SystemSettings = () => {
                 <p className="text-sm text-muted-foreground">Allow new users to register</p>
               </div>
               <Switch
-                checked={settings.allowRegistrations}
+                checked={Boolean(settings.allowRegistrations)}
                 onCheckedChange={(checked) => handleInputChange('allowRegistrations', checked)}
               />
             </div>
@@ -164,7 +151,7 @@ const SystemSettings = () => {
                 <p className="text-sm text-muted-foreground">Allow non-registered users to comment</p>
               </div>
               <Switch
-                checked={settings.allowGuestComments}
+                checked={Boolean(settings.allowGuestComments)}
                 onCheckedChange={(checked) => handleInputChange('allowGuestComments', checked)}
               />
             </div>
@@ -175,7 +162,7 @@ const SystemSettings = () => {
                 <p className="text-sm text-muted-foreground">Put site in maintenance mode</p>
               </div>
               <Switch
-                checked={settings.maintenanceMode}
+                checked={Boolean(settings.maintenanceMode)}
                 onCheckedChange={(checked) => handleInputChange('maintenanceMode', checked)}
               />
             </div>
@@ -186,7 +173,7 @@ const SystemSettings = () => {
                 <p className="text-sm text-muted-foreground">Enable system notifications</p>
               </div>
               <Switch
-                checked={settings.enableNotifications}
+                checked={Boolean(settings.enableNotifications)}
                 onCheckedChange={(checked) => handleInputChange('enableNotifications', checked)}
               />
             </div>
@@ -196,7 +183,7 @@ const SystemSettings = () => {
               <Input
                 id="postsPerPage"
                 type="number"
-                value={settings.postsPerPage}
+                value={String(settings.postsPerPage)}
                 onChange={(e) => handleInputChange('postsPerPage', e.target.value)}
               />
             </div>
@@ -216,7 +203,7 @@ const SystemSettings = () => {
               <Label htmlFor="smtpHost">SMTP Host</Label>
               <Input
                 id="smtpHost"
-                value={settings.smtpHost}
+                value={String(settings.smtpHost)}
                 onChange={(e) => handleInputChange('smtpHost', e.target.value)}
                 placeholder="smtp.gmail.com"
               />
@@ -226,7 +213,7 @@ const SystemSettings = () => {
               <Label htmlFor="smtpPort">SMTP Port</Label>
               <Input
                 id="smtpPort"
-                value={settings.smtpPort}
+                value={String(settings.smtpPort)}
                 onChange={(e) => handleInputChange('smtpPort', e.target.value)}
               />
             </div>
@@ -235,7 +222,7 @@ const SystemSettings = () => {
               <Label htmlFor="smtpUsername">SMTP Username</Label>
               <Input
                 id="smtpUsername"
-                value={settings.smtpUsername}
+                value={String(settings.smtpUsername)}
                 onChange={(e) => handleInputChange('smtpUsername', e.target.value)}
               />
             </div>
@@ -245,7 +232,7 @@ const SystemSettings = () => {
               <Input
                 id="smtpPassword"
                 type="password"
-                value={settings.smtpPassword}
+                value={String(settings.smtpPassword)}
                 onChange={(e) => handleInputChange('smtpPassword', e.target.value)}
               />
             </div>
@@ -266,7 +253,7 @@ const SystemSettings = () => {
               <Input
                 id="sessionTimeout"
                 type="number"
-                value={settings.sessionTimeout}
+                value={String(settings.sessionTimeout)}
                 onChange={(e) => handleInputChange('sessionTimeout', e.target.value)}
               />
             </div>
@@ -276,7 +263,7 @@ const SystemSettings = () => {
               <Input
                 id="maxLoginAttempts"
                 type="number"
-                value={settings.maxLoginAttempts}
+                value={String(settings.maxLoginAttempts)}
                 onChange={(e) => handleInputChange('maxLoginAttempts', e.target.value)}
               />
             </div>
@@ -287,7 +274,7 @@ const SystemSettings = () => {
                 <p className="text-sm text-muted-foreground">Require 2FA for admin users</p>
               </div>
               <Switch
-                checked={settings.enableTwoFactor}
+                checked={Boolean(settings.enableTwoFactor)}
                 onCheckedChange={(checked) => handleInputChange('enableTwoFactor', checked)}
               />
             </div>
@@ -298,7 +285,7 @@ const SystemSettings = () => {
                 <p className="text-sm text-muted-foreground">Allow file uploads</p>
               </div>
               <Switch
-                checked={settings.allowFileUploads}
+                checked={Boolean(settings.allowFileUploads)}
                 onCheckedChange={(checked) => handleInputChange('allowFileUploads', checked)}
               />
             </div>
@@ -308,7 +295,7 @@ const SystemSettings = () => {
               <Input
                 id="maxFileSize"
                 type="number"
-                value={settings.maxFileSize}
+                value={String(settings.maxFileSize)}
                 onChange={(e) => handleInputChange('maxFileSize', e.target.value)}
               />
             </div>

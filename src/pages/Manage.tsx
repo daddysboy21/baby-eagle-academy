@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import type { AuthContextType } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +17,7 @@ import {
 import { Link } from 'react-router-dom';
 
 const Manage = () => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth() as AuthContextType;
 
   const getRoleColor = (role: string) => {
     switch (role) {

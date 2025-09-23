@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+
 import { UserPlus, Edit, Trash2, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import StaffForm from './StaffForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 interface Staff {
   id: string;
@@ -24,7 +27,26 @@ import { staffAPI } from '@/services/api';
 
 const StaffManagement = () => {
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Add missing handlers for edit dialog
+  const handleEditStaff = (member: Staff) => {
+    setEditingStaff(member);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingStaff(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleStaffUpdated = (updated: Staff) => {
+    setStaff(staff.map(s => s.id === updated.id ? updated : s));
+    handleEditDialogClose();
+    toast({ title: 'Staff member updated', description: `${updated.name} has been updated.` });
+  };
 
   useEffect(() => {
     const fetchStaff = async () => {
@@ -53,10 +75,24 @@ const StaffManagement = () => {
   };
 
   const handleDeleteStaff = async (staffId: string) => {
+  const handleEditStaff = (member: Staff) => {
+    setEditingStaff(member);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingStaff(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleStaffUpdated = (updated: Staff) => {
+    setStaff(staff.map(s => s.id === updated.id ? updated : s));
+    handleEditDialogClose();
+    toast({ title: 'Staff member updated', description: `${updated.name} has been updated.` });
+  };
     try {
-      // TODO: Replace with your backend API call
+      await staffAPI.delete(staffId);
       setStaff(staff.filter(member => member.id !== staffId));
-      
       toast({
         title: "Staff member deleted",
         description: "Staff member has been removed from the team",
@@ -113,7 +149,7 @@ const StaffManagement = () => {
                 </div>
                 
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditStaff(member)}>
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
                   </Button>
@@ -126,6 +162,23 @@ const StaffManagement = () => {
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
+      {/* Edit Staff Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Staff Member</DialogTitle>
+            <DialogDescription>Update staff member information below.</DialogDescription>
+          </DialogHeader>
+          {editingStaff && (
+            <StaffForm
+              mode="edit"
+              initialData={editingStaff}
+              onSuccess={handleStaffUpdated}
+              onCancel={handleEditDialogClose}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
               </div>
             </CardContent>
           </Card>

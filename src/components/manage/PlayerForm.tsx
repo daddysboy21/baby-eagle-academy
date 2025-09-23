@@ -10,21 +10,44 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { playersAPI } from '@/services/api';
 
-const PlayerForm = () => {
+
+
+interface Player {
+  id?: string;
+  name: string;
+  position: string;
+  age: number;
+  nationality: string;
+  jerseyNumber: number;
+  status: 'active' | 'injured' | 'suspended';
+  createdAt?: string;
+  height?: number;
+  weight?: number;
+  previousClub?: string;
+  bio?: string;
+}
+
+interface PlayerFormProps {
+  mode?: 'add' | 'edit';
+  initialData?: Player;
+  onSuccess?: (player: Player) => void;
+  onCancel?: () => void;
+}
+
+const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSuccess, onCancel }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
   const [formData, setFormData] = useState({
-    name: '',
-    position: '',
-    age: '',
-    nationality: '',
-    jerseyNumber: '',
-    height: '',
-    weight: '',
-    previousClub: '',
-    bio: '',
-    status: 'active'
+    name: initialData?.name || '',
+    position: initialData?.position || '',
+    age: initialData?.age?.toString() || '',
+    nationality: initialData?.nationality || '',
+    jerseyNumber: initialData?.jerseyNumber?.toString() || '',
+    height: initialData?.height?.toString() || '',
+    weight: initialData?.weight?.toString() || '',
+    previousClub: initialData?.previousClub || '',
+    bio: initialData?.bio || '',
+    status: initialData?.status || 'active',
   });
 
   const positions = [
@@ -45,19 +68,34 @@ const PlayerForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
-      // Send to backend
-      const created = await playersAPI.create(formData);
-      toast({
-        title: "Player added successfully",
-        description: `${created.name} has been added to the team`,
-      });
-      
-      navigate('/manage/players');
+      // Convert numeric fields to numbers as required by backend
+      const payload = {
+        ...formData,
+        age: formData.age ? Number(formData.age) : undefined,
+        jerseyNumber: formData.jerseyNumber ? Number(formData.jerseyNumber) : undefined,
+        height: formData.height ? Number(formData.height) : undefined,
+        weight: formData.weight ? Number(formData.weight) : undefined,
+      };
+      let result;
+      if (mode === 'edit' && initialData?.id) {
+        result = await playersAPI.update(initialData.id, payload);
+        toast({
+          title: "Player updated successfully",
+          description: `${result.name} has been updated`,
+        });
+        if (onSuccess) onSuccess(result);
+      } else {
+        result = await playersAPI.create(payload);
+        toast({
+          title: "Player added successfully",
+          description: `${result.name} has been added to the team`,
+        });
+        navigate('/manage/players');
+      }
     } catch (error) {
       toast({
-        title: "Error adding player",
+        title: `Error ${mode === 'edit' ? 'updating' : 'adding'} player`,
         description: "Please try again later",
         variant: "destructive",
       });
@@ -66,16 +104,17 @@ const PlayerForm = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate('/manage/players')}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h2 className="text-2xl font-bold">Add New Player</h2>
-          <p className="text-muted-foreground">Add a new player to the team roster</p>
+      {mode === 'add' ? (
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate('/manage/players')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold">Add New Player</h2>
+            <p className="text-muted-foreground">Add a new player to the team roster</p>
+          </div>
         </div>
-      </div>
-
+      ) : null}
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Player Information</CardTitle>
@@ -190,11 +229,13 @@ const PlayerForm = () => {
             </div>
             
             <div className="flex gap-4">
-              <Button type="button" variant="outline" onClick={() => navigate('/manage/players')}>
-                Cancel
-              </Button>
+              {mode === 'add' ? (
+                <Button type="button" variant="outline" onClick={() => navigate('/manage/players')}>Cancel</Button>
+              ) : (
+                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+              )}
               <Button type="submit" disabled={!formData.name || !formData.position || !formData.age}>
-                Add Player
+                {mode === 'edit' ? 'Update Player' : 'Add Player'}
               </Button>
             </div>
           </form>

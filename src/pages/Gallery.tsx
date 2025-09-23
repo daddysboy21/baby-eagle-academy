@@ -1,54 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { X, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-
-// Import team photos
-import teamPhoto1 from "@/assets/team-photo-1.jpg";
-import trainingSession1 from "@/assets/training-session-1.jpg";
-import celebration1 from "@/assets/celebration-1.jpg";
-import staffTeamPhoto from "@/assets/staff-team-photo.jpg";
-import goalkeeperAction from "@/assets/goalkeeper-action.jpg";
-import awardsCeremony from "@/assets/awards-ceremony.jpg";
-
-const galleryImages = [
-  {
-    src: teamPhoto1,
-    title: "Team Photo 2024",
-    description: "Our complete squad for the 2024 season. These young champions represent the future of football in Liberia."
-  },
-  {
-    src: trainingSession1,
-    title: "Training Session",
-    description: "Daily training sessions where our players develop their skills, discipline, and teamwork under professional coaching."
-  },
-  {
-    src: celebration1,
-    title: "Victory Celebration",
-    description: "Celebrating our recent victory in the local championship. Every goal is a step towards our bigger dreams."
-  },
-  {
-    src: staffTeamPhoto,
-    title: "Coaching Staff & Players",
-    description: "Our dedicated coaching staff working alongside our talented players. Together, we build champions on and off the pitch."
-  },
-  {
-    src: goalkeeperAction,
-    title: "Goalkeeper in Action",
-    description: "Our goalkeeper making a crucial save during a competitive match. Dedication and training pay off in moments like these."
-  },
-  {
-    src: awardsCeremony,
-    title: "Awards Ceremony",
-    description: "Recognition ceremony for our outstanding players. We celebrate both academic and athletic achievements."
-  }
-];
+import { galleryAPI } from "@/services/api";
 
 const Gallery = () => {
+  const [galleryImages, setGalleryImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const data = await galleryAPI.getAll();
+        setGalleryImages(data);
+      } catch (err) {
+        setError("Failed to load gallery images");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGallery();
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -73,13 +49,13 @@ const Gallery = () => {
       <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {galleryImages.map((image, index) => (
-            <Card key={index} className="overflow-hidden hover:shadow-glow transition-all duration-300 cursor-pointer">
+            <Card key={image.id || index} className="overflow-hidden hover:shadow-glow transition-all duration-300 cursor-pointer">
               <div 
                 className="aspect-video overflow-hidden"
                 onClick={() => setSelectedImage(index)}
               >
                 <img
-                  src={image.src}
+                  src={image.imageUrl}
                   alt={image.title}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
@@ -94,7 +70,7 @@ const Gallery = () => {
       </div>
 
       {/* Full-size image modal */}
-      {selectedImage !== null && (
+      {selectedImage !== null && galleryImages[selectedImage] && (
         <Dialog open={selectedImage !== null} onOpenChange={() => setSelectedImage(null)}>
           <DialogContent className="max-w-4xl">
             <DialogHeader>
@@ -111,7 +87,7 @@ const Gallery = () => {
             </DialogHeader>
             <div className="space-y-4">
               <img
-                src={galleryImages[selectedImage].src}
+                src={galleryImages[selectedImage].imageUrl}
                 alt={galleryImages[selectedImage].title}
                 className="w-full h-auto rounded-lg"
               />

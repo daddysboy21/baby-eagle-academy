@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { UserPlus, Edit, Trash2, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PlayerForm from './PlayerForm';
 
 interface Player {
   id: string;
@@ -24,7 +25,26 @@ import { playersAPI } from '@/services/api';
 
 const PlayerManagement = () => {
   const [players, setPlayers] = useState<Player[]>([]);
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Add missing handlers for edit dialog
+  const handleEditPlayer = (player: Player) => {
+    setEditingPlayer(player);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingPlayer(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handlePlayerUpdated = (updated: Player) => {
+    setPlayers(players.map(p => p.id === updated.id ? updated : p));
+    handleEditDialogClose();
+    toast({ title: 'Player updated', description: `${updated.name} has been updated.` });
+  };
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -50,10 +70,24 @@ const PlayerManagement = () => {
   };
 
   const handleDeletePlayer = async (playerId: string) => {
+  const handleEditPlayer = (player: Player) => {
+    setEditingPlayer(player);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingPlayer(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handlePlayerUpdated = (updated: Player) => {
+    setPlayers(players.map(p => p.id === updated.id ? updated : p));
+    handleEditDialogClose();
+    toast({ title: 'Player updated', description: `${updated.name} has been updated.` });
+  };
     try {
-      // TODO: Replace with your backend API call
+      await playersAPI.delete(playerId);
       setPlayers(players.filter(player => player.id !== playerId));
-      
       toast({
         title: "Player deleted",
         description: "Player has been removed from the team",
@@ -112,9 +146,8 @@ const PlayerManagement = () => {
                   <span className="text-sm text-muted-foreground">Nationality:</span>
                   <span className="text-sm font-medium">{player.nationality}</span>
                 </div>
-                
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditPlayer(player)}>
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
                   </Button>
@@ -132,6 +165,23 @@ const PlayerManagement = () => {
           </Card>
         ))}
       </div>
+      {/* Edit Player Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Player</DialogTitle>
+            <DialogDescription>Update player information below.</DialogDescription>
+          </DialogHeader>
+          {editingPlayer && (
+            <PlayerForm
+              mode="edit"
+              initialData={editingPlayer}
+              onSuccess={handlePlayerUpdated}
+              onCancel={handleEditDialogClose}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
       
       {players.length === 0 && (
         <div className="text-center py-12">

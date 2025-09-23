@@ -1,12 +1,5 @@
-
-
-
-
-
-
-
+// src/services/api.ts
 // API service functions
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050/api';
 
 // Helper for error handling
@@ -47,10 +40,11 @@ export const authAPI = {
 
 // Applications API
 export const applicationsAPI = {
-  submitPlayer: async (applicationData: FormData) => {
+  submitPlayer: async (applicationData: Record<string, unknown>) => {
     const response = await fetch(`${API_BASE_URL}/applications/player`, {
       method: 'POST',
-      body: applicationData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(applicationData)
     });
     return handleResponse(response);
   },
@@ -64,13 +58,14 @@ export const applicationsAPI = {
     return handleResponse(response);
   },
 
-  submitFan: async (applicationData: FormData) => {
+  submitFan: async (applicationData: Record<string, unknown>) => {
     const response = await fetch(`${API_BASE_URL}/applications/fan`, {
       method: 'POST',
-      body: applicationData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(applicationData)
     });
     return handleResponse(response);
-  }
+  },
 };
 
 // System Settings API

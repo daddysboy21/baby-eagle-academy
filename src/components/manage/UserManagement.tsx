@@ -23,6 +23,86 @@ import { useEffect } from 'react';
 import { usersAPI } from '@/services/api';
 
 
+const UserForm: React.FC<{
+  initialData?: User;
+  mode?: 'add' | 'edit';
+  onSuccess: (user: User) => void;
+  onCancel: () => void;
+}> = ({ initialData, mode = 'add', onSuccess, onCancel }) => {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    name: initialData?.name || '',
+    email: initialData?.email || '',
+    role: initialData?.role || 'media-person',
+  });
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      let result;
+      if (mode === 'edit' && initialData?.id) {
+        result = await usersAPI.update(initialData.id, formData);
+        toast({ title: 'User updated', description: `${result.name} has been updated.` });
+      } else {
+        result = await usersAPI.create(formData);
+        toast({ title: 'User added', description: `${result.name} has been added as ${result.role}` });
+      }
+      onSuccess(result);
+    } catch (error) {
+      toast({
+        title: `Error ${mode === 'edit' ? 'updating' : 'adding'} user`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="name">Full Name</Label>
+        <Input
+          id="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Enter full name"
+        />
+      </div>
+      <div>
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          placeholder="Enter email address"
+        />
+      </div>
+      <div>
+        <Label htmlFor="role">Role</Label>
+        <Select value={formData.role} onValueChange={(value: UserRole) => setFormData({ ...formData, role: value })}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="media-person">Media Person</SelectItem>
+            <SelectItem value="co-admin">Co-Admin</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <DialogFooter>
+        <Button variant="outline" type="button" onClick={onCancel} disabled={loading}>Cancel</Button>
+        <Button type="submit" disabled={!formData.name || !formData.email || loading}>
+          {mode === 'edit' ? 'Update User' : 'Add User'}
+        </Button>
+      </DialogFooter>
+    </form>
+  );
+};
+
 const UserManagement = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
@@ -38,7 +118,26 @@ const UserManagement = () => {
     fetchUsers();
   }, [toast]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'media-person' as UserRole });
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  // Add missing newUser state and handler
+  const [newUser, setNewUser] = useState<{ name: string; email: string; role: UserRole }>({
+    name: '',
+    email: '',
+    role: 'media-person',
+  });
+
+  const handleAddUser = async () => {
+    try {
+      const created = await usersAPI.create(newUser);
+      setUsers([...users, created]);
+      setIsAddDialogOpen(false);
+      setNewUser({ name: '', email: '', role: 'media-person' });
+      toast({ title: 'User added', description: `${created.name} has been added.` });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to add user', variant: 'destructive' });
+    }
+  };
 
   const getRoleIcon = (role: UserRole) => {
     switch (role) {
@@ -56,23 +155,21 @@ const UserManagement = () => {
     }
   };
 
-  const handleAddUser = async () => {
-    try {
-      const created = await usersAPI.create(newUser);
-      setUsers([...users, created]);
-      setNewUser({ name: '', email: '', role: 'media-person' });
-      setIsAddDialogOpen(false);
-      toast({
-        title: "User added successfully",
-        description: `${created.name} has been added as ${created.role}`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error adding user",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    }
+
+  const handleAddUserSuccess = (user: User) => {
+    setUsers([...users, user]);
+    setIsAddDialogOpen(false);
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditUserSuccess = (updated: User) => {
+    setUsers(users.map(u => u.id === updated.id ? updated : u));
+    setIsEditDialogOpen(false);
+    setEditingUser(null);
   };
 
   const handleDeleteUser = async (userId: string) => {
@@ -186,7 +283,7 @@ const UserManagement = () => {
                 </p>
                 
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditUser(user)}>
                     <Edit className="h-3 w-3 mr-1" />
                     Edit
                   </Button>
@@ -205,6 +302,39 @@ const UserManagement = () => {
         ))}
       </div>
       
+      {/* Add User Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <DialogDescription>Create a new user account with appropriate permissions</DialogDescription>
+          </DialogHeader>
+          <UserForm
+            mode="add"
+            onSuccess={handleAddUserSuccess}
+            onCancel={() => setIsAddDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>Update user information below.</DialogDescription>
+          </DialogHeader>
+          {editingUser && (
+            <UserForm
+              mode="edit"
+              initialData={editingUser}
+              onSuccess={handleEditUserSuccess}
+              onCancel={() => setIsEditDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {users.length === 0 && (
         <div className="text-center py-12">
           <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

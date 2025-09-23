@@ -4,18 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Eye, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
+import NewsForm from './NewsForm';
 
 interface NewsArticle {
   id: string;
   title: string;
   excerpt: string;
+  content: string;
   category: string;
   status: 'published' | 'draft' | 'archived';
   author: string;
   publishDate: string;
   views: number;
   createdAt: string;
+  tags?: string;
 }
 
 
@@ -24,7 +28,26 @@ import { newsAPI } from '@/services/api';
 
 const NewsManagement = () => {
   const [news, setNews] = useState<NewsArticle[]>([]);
+  const [editingNews, setEditingNews] = useState<NewsArticle | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Add missing handlers for edit dialog
+  const handleEditNews = (article: NewsArticle) => {
+    setEditingNews(article);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingNews(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleNewsUpdated = (updated: NewsArticle) => {
+    setNews(news.map(n => n.id === updated.id ? updated : n));
+    handleEditDialogClose();
+    toast({ title: 'News article updated', description: `${updated.title} has been updated.` });
+  };
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -58,10 +81,24 @@ const NewsManagement = () => {
   };
 
   const handleDeleteNews = async (newsId: string) => {
+  const handleEditNews = (article: NewsArticle) => {
+    setEditingNews(article);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingNews(null);
+    setIsEditDialogOpen(false);
+  };
+
+  const handleNewsUpdated = (updated: NewsArticle) => {
+    setNews(news.map(n => n.id === updated.id ? updated : n));
+    handleEditDialogClose();
+    toast({ title: 'News article updated', description: `${updated.title} has been updated.` });
+  };
     try {
-      // TODO: Replace with your backend API call
+      await newsAPI.delete(newsId);
       setNews(news.filter(article => article.id !== newsId));
-      
       toast({
         title: "News article deleted",
         description: "The article has been removed",
@@ -79,13 +116,12 @@ const NewsManagement = () => {
     const newStatus = currentStatus === 'published' ? 'draft' : 'published';
     
     try {
-      // TODO: Replace with your backend API call
+      await newsAPI.update(newsId, { status: newStatus });
       setNews(news.map(article => 
         article.id === newsId 
           ? { ...article, status: newStatus as 'published' | 'draft' | 'archived' }
           : article
       ));
-      
       toast({
         title: `Article ${newStatus}`,
         description: `The article has been ${newStatus}`,
@@ -154,10 +190,27 @@ const NewsManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => handleEditNews(article)}>
                   <Edit className="h-3 w-3 mr-1" />
                   Edit
                 </Button>
+      {/* Edit News Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit News Article</DialogTitle>
+            <DialogDescription>Update news article information below.</DialogDescription>
+          </DialogHeader>
+          {editingNews && (
+            <NewsForm
+              mode="edit"
+              initialData={editingNews}
+              onSuccess={handleNewsUpdated}
+              onCancel={handleEditDialogClose}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
                 <Button 
                   variant="outline" 
                   size="sm"

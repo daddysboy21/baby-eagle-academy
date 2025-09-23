@@ -58,17 +58,20 @@ const PlayerApplicationForm = () => {
 
   const onSubmit = async (data: PlayerFormData) => {
     try {
-      // Prepare FormData for backend API
-      const formDataToSend = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (key === 'photo' && value instanceof File) {
-          formDataToSend.append('photo', value);
-        } else if (value !== undefined) {
-          formDataToSend.append(key, String(value));
-        }
-      });
-  // Use imported applicationsAPI
-      await applicationsAPI.submitPlayer(formDataToSend);
+      let photoBase64: string | undefined = undefined;
+      if (data.photo instanceof File) {
+        photoBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(data.photo);
+        });
+      }
+      const payload = {
+        ...data,
+        photo: photoBase64,
+      };
+      await applicationsAPI.submitPlayer(payload);
       toast({
         title: "Application Submitted!",
         description: "Your player application has been received. We'll contact you soon!",

@@ -46,19 +46,23 @@ const FanMemberForm = () => {
 
   const onSubmit = async (data: FanMemberFormData) => {
     try {
-      // Prepare FormData for backend API
-      const formDataToSend = new FormData();
-      Object.entries(data).forEach(([key, value]) => {
-        if (key === 'photo' && photoFile) {
-          formDataToSend.append('photo', photoFile);
-        } else if (value !== undefined) {
-          formDataToSend.append(key, String(value));
-        }
-      });
-      await applicationsAPI.submitFan(formDataToSend);
+      let photoBase64: string | undefined = undefined;
+      if (data.photo instanceof File) {
+        photoBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(data.photo);
+        });
+      }
+      const payload = {
+        ...data,
+        photo: photoBase64,
+      };
+      await applicationsAPI.submitFan(payload);
       toast({
-        title: "Membership Application Submitted!",
-        description: "Welcome to the Baby Eagle family! We'll send your membership details soon.",
+        title: "Application Submitted!",
+        description: "Your fan membership application has been received. We'll contact you soon!",
       });
       setIsOpen(false);
       form.reset();
