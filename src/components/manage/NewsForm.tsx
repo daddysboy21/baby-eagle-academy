@@ -23,6 +23,7 @@ interface NewsArticle {
   publishDate?: string;
   views?: number;
   createdAt?: string;
+  image?: string; // base64 image
 }
 
 interface NewsFormProps {
@@ -42,7 +43,18 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
     category: initialData?.category || '',
     tags: initialData?.tags || '',
     status: initialData?.status || 'draft',
+    image: initialData?.image || '',
   });
+  // Handle image upload and convert to base64
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({ ...prev, image: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const categories = [
     'Match Results',
@@ -63,6 +75,10 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.image) {
+      toast({ title: 'Image required', description: 'Please upload an image for the news article.', variant: 'destructive' });
+      return;
+    }
     try {
       let result;
       if (mode === 'edit' && initialData?.id) {
@@ -177,6 +193,18 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
                 required
               />
             </div>
+            <div>
+              <Label htmlFor="image">Article Image *</Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {formData.image && (
+                <img src={formData.image} alt="Preview" className="mt-2 max-h-40 rounded" />
+              )}
+            </div>
             
             <div className="flex gap-4">
               {mode === 'add' ? (
@@ -187,7 +215,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
               <Button 
                 type="submit" 
                 variant="outline"
-                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content}
+                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content || !formData.image}
               >
                 <Save className="h-4 w-4 mr-2" />
                 {mode === 'edit' ? 'Update Article' : 'Save as Draft'}
@@ -195,7 +223,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
               <Button 
                 type="button"
                 onClick={handleSaveAndPublish}
-                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content}
+                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content || !formData.image}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 {mode === 'edit' ? 'Update & Publish' : 'Publish Article'}

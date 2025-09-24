@@ -75,23 +75,8 @@ const GalleryManagement = () => {
   };
 
   const handleDeleteImage = async (imageId: string) => {
-  const handleEditItem = (item: GalleryItem) => {
-    setEditingItem(item);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleEditDialogClose = () => {
-    setEditingItem(null);
-    setIsEditDialogOpen(false);
-  };
-
-  const handleGalleryItemUpdated = (updated: GalleryItem) => {
-    setGallery(gallery.map(g => g.id === updated.id ? updated : g));
-    handleEditDialogClose();
-    toast({ title: 'Gallery item updated', description: `${updated.title} has been updated.` });
-  };
     try {
-      await galleryAPI.delete(imageId);
+      await galleryAPI.remove(imageId);
       setGallery(gallery.filter(item => item.id !== imageId));
       toast({
         title: "Image deleted",
@@ -99,12 +84,13 @@ const GalleryManagement = () => {
       });
     } catch (error) {
       toast({
-        title: "Error deleting image",
-        description: "Please try again later",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to delete image',
+        variant: 'destructive',
       });
     }
   };
+// Removed duplicate/stray catch block after handleDeleteImage
 
   const handleToggleStatus = async (imageId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'private' : 'published';

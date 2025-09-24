@@ -35,6 +35,7 @@ const UserForm: React.FC<{
     name: initialData?.name || '',
     email: initialData?.email || '',
     role: initialData?.role || 'media-person',
+    password: '', // Only used for add mode
   });
   const [loading, setLoading] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,9 +44,17 @@ const UserForm: React.FC<{
     try {
       let result;
       if (mode === 'edit' && initialData?.id) {
-        result = await usersAPI.update(initialData.id, formData);
+        // Don't send password on edit
+        const { password, ...updateData } = formData;
+        result = await usersAPI.update(initialData.id, updateData);
         toast({ title: 'User updated', description: `${result.name} has been updated.` });
       } else {
+        // Password is required for new user
+        if (!formData.password) {
+          toast({ title: 'Password required', description: 'Please enter a password for the new user.', variant: 'destructive' });
+          setLoading(false);
+          return;
+        }
         result = await usersAPI.create(formData);
         toast({ title: 'User added', description: `${result.name} has been added as ${result.role}` });
       }
@@ -94,9 +103,22 @@ const UserForm: React.FC<{
           </SelectContent>
         </Select>
       </div>
+      {mode === 'add' && (
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            placeholder="Enter password"
+            autoComplete="new-password"
+          />
+        </div>
+      )}
       <DialogFooter>
         <Button variant="outline" type="button" onClick={onCancel} disabled={loading}>Cancel</Button>
-        <Button type="submit" disabled={!formData.name || !formData.email || loading}>
+        <Button type="submit" disabled={!formData.name || !formData.email || (mode === 'add' && !formData.password) || loading}>
           {mode === 'edit' ? 'Update User' : 'Add User'}
         </Button>
       </DialogFooter>
@@ -122,18 +144,20 @@ const UserManagement = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   // Add missing newUser state and handler
-  const [newUser, setNewUser] = useState<{ name: string; email: string; role: UserRole }>({
-    name: '',
-    email: '',
-    role: 'media-person',
-  });
+  const [newUser, setNewUser] = useState<{ name: string; email: string; role: UserRole; password: string }>(
+    { name: '', email: '', role: 'media-person', password: '' }
+  );
 
   const handleAddUser = async () => {
     try {
+      if (!newUser.password) {
+        toast({ title: 'Password required', description: 'Please enter a password for the new user.', variant: 'destructive' });
+        return;
+      }
       const created = await usersAPI.create(newUser);
       setUsers([...users, created]);
       setIsAddDialogOpen(false);
-      setNewUser({ name: '', email: '', role: 'media-person' });
+      setNewUser({ name: '', email: '', role: 'media-person', password: '' });
       toast({ title: 'User added', description: `${created.name} has been added.` });
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to add user', variant: 'destructive' });
@@ -230,7 +254,6 @@ const UserManagement = () => {
                     placeholder="Enter full name"
                   />
                 </div>
-                
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -241,7 +264,6 @@ const UserManagement = () => {
                     placeholder="Enter email address"
                   />
                 </div>
-                
                 <div>
                   <Label htmlFor="role">Role</Label>
                   <Select value={newUser.role} onValueChange={(value: UserRole) => setNewUser({ ...newUser, role: value })}>
@@ -254,6 +276,17 @@ const UserManagement = () => {
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    placeholder="Enter password"
+                    autoComplete="new-password"
+                  />
                 </div>
               </div>
               

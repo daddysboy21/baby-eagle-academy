@@ -1,3 +1,4 @@
+// (removed accidental top-level create)
 // src/services/api.ts
 // API service functions
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050/api';
@@ -255,9 +256,7 @@ export const newsAPI = {
     });
     return response.json();
   },
-
   update: async (id: string, newsData: Record<string, unknown>) => {
-    // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/news/${id}`, {
       method: 'PUT',
@@ -269,9 +268,7 @@ export const newsAPI = {
     });
     return response.json();
   },
-
   delete: async (id: string) => {
-    // TODO: Replace with your backend endpoint
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/news/${id}`, {
       method: 'DELETE',
@@ -283,33 +280,22 @@ export const newsAPI = {
 
 // Gallery API
 export const galleryAPI = {
+  create: async (galleryData: Record<string, unknown>) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/gallery`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(galleryData)
+    });
+    return response.json();
+  },
   getAll: async () => {
-    // TODO: Replace with your backend endpoint
     const response = await fetch(`${API_BASE_URL}/gallery`);
     return response.json();
   },
-
-  upload: async (formData: FormData) => {
-    // TODO: Replace with your backend endpoint
-    const token = localStorage.getItem('authToken');
-    const response = await fetch(`${API_BASE_URL}/gallery/upload`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData
-    });
-    return response.json();
-  },
-
-  delete: async (id: string) => {
-    // TODO: Replace with your backend endpoint
-    const token = localStorage.getItem('authToken');
-    const response = await fetch(`${API_BASE_URL}/gallery/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    return response.json();
-  },
-
   update: async (id: string, updateData: Record<string, unknown>) => {
     const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE_URL}/gallery/${id}`, {
@@ -319,6 +305,14 @@ export const galleryAPI = {
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(updateData)
+    });
+    return response.json();
+  },
+  remove: async (id: string) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/gallery/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
     });
     return response.json();
   }

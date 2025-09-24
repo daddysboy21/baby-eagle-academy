@@ -48,7 +48,10 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
     previousClub: initialData?.previousClub || '',
     bio: initialData?.bio || '',
     status: initialData?.status || 'active',
+    image: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const positions = [
     'Goalkeeper',
@@ -66,8 +69,25 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, image: reader.result as string }));
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === 'add' && !formData.image) {
+      toast({ title: 'Image required', description: 'Please upload a player image.', variant: 'destructive' });
+      return;
+    }
     try {
       // Convert numeric fields to numbers as required by backend
       const payload = {
@@ -228,13 +248,25 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
               />
             </div>
             
+            <div>
+              <Label htmlFor="image">Player Image {mode === 'add' && '*'}</Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" className="mt-2 w-32 h-32 object-cover rounded" />
+              )}
+            </div>
             <div className="flex gap-4">
               {mode === 'add' ? (
                 <Button type="button" variant="outline" onClick={() => navigate('/manage/players')}>Cancel</Button>
               ) : (
                 <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
               )}
-              <Button type="submit" disabled={!formData.name || !formData.position || !formData.age}>
+              <Button type="submit" disabled={!formData.name || !formData.position || !formData.age || (mode === 'add' && !formData.image)}>
                 {mode === 'edit' ? 'Update Player' : 'Add Player'}
               </Button>
             </div>

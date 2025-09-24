@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { galleryAPI } from '@/services/api';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -81,17 +82,16 @@ const GalleryUpload = () => {
       return;
     }
     try {
-      // Prepare FormData for backend
-      const fd = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        fd.append(key, value);
+      // Convert all selected files to base64
+      const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
-      selectedFiles.forEach((file) => {
-        fd.append('images', file);
-      });
-      await import('@/services/api').then(({ galleryAPI }) =>
-        galleryAPI.upload(fd)
-      );
+      const images = await Promise.all(selectedFiles.map(toBase64));
+      const payload = { ...formData, images };
+      await galleryAPI.create(payload);
       toast({
         title: "Images uploaded successfully",
         description: `${selectedFiles.length} image(s) have been uploaded to the gallery`,
