@@ -1,28 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-
-import { Upload, Edit, Trash2, Eye, Calendar, Image, ArrowLeft } from 'lucide-react';
+import { Upload, Edit, Trash2, Eye, Calendar, Images, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import GalleryForm from './GalleryForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { galleryAPI } from '@/services/api';
 
 interface GalleryItem {
   id: string;
-  title: string;
-  description: string;
-  category: string;
-  imageUrl: string;
-  uploadedBy: string;
-  uploadDate: string;
-  views: number;
+  title?: string;
+  description?: string;
+  category?: string;
+  tags?: string;
   status: 'published' | 'private';
+  images: Array<{
+    data: string; // base64 string
+    uploadedAt: string;
+  }>;
+  createdAt: string;
 }
-
-import { useEffect } from 'react';
-import { galleryAPI } from '@/services/api';
 
 const GalleryManagement = () => {
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
@@ -30,7 +29,6 @@ const GalleryManagement = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  // Add missing handlers for edit dialog
   const handleEditItem = (item: GalleryItem) => {
     setEditingItem(item);
     setIsEditDialogOpen(true);
@@ -44,7 +42,7 @@ const GalleryManagement = () => {
   const handleGalleryItemUpdated = (updated: GalleryItem) => {
     setGallery(gallery.map(g => g.id === updated.id ? updated : g));
     handleEditDialogClose();
-    toast({ title: 'Gallery item updated', description: `${updated.title} has been updated.` });
+    toast({ title: 'Gallery item updated', description: `${updated.title || 'Gallery item'} has been updated.` });
   };
 
   useEffect(() => {
@@ -58,14 +56,16 @@ const GalleryManagement = () => {
     };
     fetchGallery();
   }, [toast]);
-// ...existing code...
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category?: string) => {
     switch (category) {
       case 'Matches': return 'bg-green-500';
       case 'Training': return 'bg-blue-500';
       case 'Team': return 'bg-purple-500';
       case 'Events': return 'bg-orange-500';
+      case 'Academy': return 'bg-indigo-500';
+      case 'Community': return 'bg-pink-500';
+      case 'Behind the Scenes': return 'bg-gray-500';
       default: return 'bg-gray-500';
     }
   };
@@ -74,44 +74,53 @@ const GalleryManagement = () => {
     return status === 'published' ? 'bg-green-500' : 'bg-gray-500';
   };
 
-  const handleDeleteImage = async (imageId: string) => {
+  const handleDeleteItem = async (itemId: string) => {
     try {
-      await galleryAPI.remove(imageId);
-      setGallery(gallery.filter(item => item.id !== imageId));
+      await galleryAPI.remove(itemId);
+      setGallery(gallery.filter(item => item.id !== itemId));
       toast({
-        title: "Image deleted",
-        description: "The image has been removed from the gallery",
+        title: "Gallery item deleted",
+        description: "The gallery item has been removed",
       });
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to delete image',
+        description: 'Failed to delete gallery item',
         variant: 'destructive',
       });
     }
   };
-// Removed duplicate/stray catch block after handleDeleteImage
 
-  const handleToggleStatus = async (imageId: string, currentStatus: string) => {
+  const handleToggleStatus = async (itemId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'private' : 'published';
     try {
-      await galleryAPI.update(imageId, { status: newStatus });
+      await galleryAPI.update(itemId, { status: newStatus });
       setGallery(gallery.map(item => 
-        item.id === imageId 
+        item.id === itemId 
           ? { ...item, status: newStatus as 'published' | 'private' }
           : item
       ));
       toast({
-        title: `Image ${newStatus}`,
-        description: `The image is now ${newStatus}`,
+        title: `Gallery item ${newStatus}`,
+        description: `The gallery item is now ${newStatus}`,
       });
     } catch (error) {
       toast({
-        title: "Error updating image",
+        title: "Error updating gallery item",
         description: "Please try again later",
         variant: "destructive",
       });
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
 
   return (
@@ -142,14 +151,24 @@ const GalleryManagement = () => {
             <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="aspect-video relative">
                 <img 
-                  src={item.imageUrl} 
-                  alt={item.title}
+                  src={`data:image/jpeg;base64,${item.images[0]?.data}`}
+                  alt={item.title || 'Gallery image'}
                   className="w-full h-full object-cover"
                 />
+                <div className="absolute top-2 left-2 flex flex-col gap-1">
+                  {item.images.length > 1 && (
+                    <Badge className="bg-black/70 text-white text-xs">
+                      <Images className="w-3 h-3 mr-1" />
+                      {item.images.length}
+                    </Badge>
+                  )}
+                </div>
                 <div className="absolute top-2 right-2 flex flex-col gap-1">
-                  <Badge className={`${getCategoryColor(item.category)} text-white text-xs`}>
-                    {item.category}
-                  </Badge>
+                  {item.category && (
+                    <Badge className={`${getCategoryColor(item.category)} text-white text-xs`}>
+                      {item.category}
+                    </Badge>
+                  )}
                   <Badge className={`${getStatusColor(item.status)} text-white text-xs`}>
                     {item.status}
                   </Badge>
@@ -157,28 +176,32 @@ const GalleryManagement = () => {
               </div>
               
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm sm:text-base lg:text-lg line-clamp-2">{item.title}</CardTitle>
+                <CardTitle className="text-sm sm:text-base lg:text-lg line-clamp-2">
+                  {item.title || 'Untitled Gallery'}
+                </CardTitle>
               </CardHeader>
               
               <CardContent className="space-y-3">
-                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                  {item.description}
-                </p>
+                {item.description && (
+                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                    {item.description}
+                  </p>
+                )}
                 
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3 flex-shrink-0" />
-                    {item.uploadDate}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Eye className="h-3 w-3 flex-shrink-0" />
-                    {item.views} views
-                  </span>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3 flex-shrink-0" />
+                  <span>{formatDate(item.createdAt)}</span>
                 </div>
-                
-                <p className="text-xs text-muted-foreground">
-                  Uploaded by {item.uploadedBy}
-                </p>
+
+                {item.tags && (
+                  <div className="flex flex-wrap gap-1">
+                    {item.tags.split(',').slice(0, 3).map((tag, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {tag.trim()}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 
                 <div className="flex flex-col sm:flex-row gap-2 pt-2">
                   <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleEditItem(item)}>
@@ -197,7 +220,7 @@ const GalleryManagement = () => {
                     variant="outline" 
                     size="sm" 
                     className="text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteImage(item.id)}
+                    onClick={() => handleDeleteItem(item.id)}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -227,8 +250,8 @@ const GalleryManagement = () => {
         
         {gallery.length === 0 && (
           <div className="text-center py-12">
-            <Image className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-base sm:text-lg font-medium mb-2">No images found</h3>
+            <Images className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-base sm:text-lg font-medium mb-2">No gallery items found</h3>
             <p className="text-muted-foreground mb-4 text-sm sm:text-base">Upload your first photos to get started</p>
           </div>
         )}

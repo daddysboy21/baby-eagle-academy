@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Plus, Edit, Trash2, Eye, Calendar, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import NewsForm from './NewsForm';
+import { newsAPI } from '@/services/api';
 
 interface NewsArticle {
   id: string;
@@ -14,17 +15,11 @@ interface NewsArticle {
   excerpt: string;
   content: string;
   category: string;
-  status: 'published' | 'draft' | 'archived';
-  author: string;
-  publishDate: string;
-  views: number;
-  createdAt: string;
+  status: 'published' | 'draft';
   tags?: string;
+  image?: string;
+  createdAt: string;
 }
-
-
-import { useEffect } from 'react';
-import { newsAPI } from '@/services/api';
 
 const NewsManagement = () => {
   const [news, setNews] = useState<NewsArticle[]>([]);
@@ -32,7 +27,6 @@ const NewsManagement = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  // Add missing handlers for edit dialog
   const handleEditNews = (article: NewsArticle) => {
     setEditingNews(article);
     setIsEditDialogOpen(true);
@@ -60,13 +54,11 @@ const NewsManagement = () => {
     };
     fetchNews();
   }, [toast]);
-// ...existing code...
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return 'bg-green-500';
       case 'draft': return 'bg-yellow-500';
-      case 'archived': return 'bg-gray-500';
       default: return 'bg-gray-500';
     }
   };
@@ -76,26 +68,15 @@ const NewsManagement = () => {
       case 'Match Results': return 'bg-blue-500';
       case 'Transfers': return 'bg-purple-500';
       case 'Team News': return 'bg-orange-500';
+      case 'Training Updates': return 'bg-green-500';
+      case 'Academy News': return 'bg-indigo-500';
+      case 'Community': return 'bg-pink-500';
+      case 'Announcements': return 'bg-red-500';
       default: return 'bg-gray-500';
     }
   };
 
   const handleDeleteNews = async (newsId: string) => {
-  const handleEditNews = (article: NewsArticle) => {
-    setEditingNews(article);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleEditDialogClose = () => {
-    setEditingNews(null);
-    setIsEditDialogOpen(false);
-  };
-
-  const handleNewsUpdated = (updated: NewsArticle) => {
-    setNews(news.map(n => n.id === updated.id ? updated : n));
-    handleEditDialogClose();
-    toast({ title: 'News article updated', description: `${updated.title} has been updated.` });
-  };
     try {
       await newsAPI.delete(newsId);
       setNews(news.filter(article => article.id !== newsId));
@@ -119,7 +100,7 @@ const NewsManagement = () => {
       await newsAPI.update(newsId, { status: newStatus });
       setNews(news.map(article => 
         article.id === newsId 
-          ? { ...article, status: newStatus as 'published' | 'draft' | 'archived' }
+          ? { ...article, status: newStatus as 'published' | 'draft' }
           : article
       ));
       toast({
@@ -133,6 +114,16 @@ const NewsManagement = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
 
   return (
@@ -163,36 +154,43 @@ const NewsManagement = () => {
             <Card key={article.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-3">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                    {article.image && (
+                      <img
+                        src={`data:image/jpeg;base64,${article.image}`}
+                        alt={article.title}
+                        className="w-full sm:w-32 h-20 sm:h-20 object-cover rounded"
+                      />
+                    )}
                     <div className="flex-1">
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <Badge className={`${getCategoryColor(article.category)} text-white text-xs`}>
+                          {article.category}
+                        </Badge>
+                        <Badge className={`${getStatusColor(article.status)} text-white text-xs`}>
+                          {article.status}
+                        </Badge>
+                      </div>
                       <CardTitle className="text-base sm:text-lg lg:text-xl mb-2 leading-tight">{article.title}</CardTitle>
                       <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3">
                         {article.excerpt}
                       </p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3 flex-shrink-0" />
+                          {formatDate(article.createdAt)}
+                        </span>
+                        {article.tags && (
+                          <div className="flex flex-wrap gap-1">
+                            {article.tags.split(',').slice(0, 3).map((tag, index) => (
+                              <span key={index} className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                                {tag.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    
-                    <div className="flex flex-row sm:flex-col gap-2">
-                      <Badge className={`${getCategoryColor(article.category)} text-white text-xs w-fit`}>
-                        {article.category}
-                      </Badge>
-                      <Badge className={`${getStatusColor(article.status)} text-white text-xs w-fit`}>
-                        {article.status}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3 flex-shrink-0" />
-                      {article.publishDate || 'Not published'}
-                    </span>
-                    <span>By {article.author}</span>
-                    {article.status === 'published' && (
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-3 w-3 flex-shrink-0" />
-                        {article.views} views
-                      </span>
-                    )}
                   </div>
                 </div>
               </CardHeader>

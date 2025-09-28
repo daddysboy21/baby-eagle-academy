@@ -10,19 +10,19 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { staffAPI } from '@/services/api';
 
-
 interface Staff {
   id?: string;
   name: string;
   role: string;
-  department: string;
-  experience: number;
+  department: 'Technical' | 'Medical' | 'Administrative' | 'Support';
+  experience?: number;
   email: string;
-  phone: string;
-  status: 'active' | 'inactive';
-  createdAt?: string;
+  phone?: string;
   qualifications?: string;
   bio?: string;
+  status: string;
+  image?: string;
+  createdAt?: string;
 }
 
 interface StaffFormProps {
@@ -45,16 +45,24 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
     qualifications: initialData?.qualifications || '',
     bio: initialData?.bio || '',
     status: initialData?.status || 'active',
+    image: initialData?.image || '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image || null);
 
-  const departments = ['Technical', 'Medical', 'Administrative', 'Support'];
+  const departments: Array<'Technical' | 'Medical' | 'Administrative' | 'Support'> = ['Technical', 'Medical', 'Administrative', 'Support'];
   
   const roles = {
-    Technical: ['Head Coach', 'Assistant Coach', 'Fitness Coach', 'Goalkeeping Coach', 'Scout'],
-    Medical: ['Team Doctor', 'Physiotherapist', 'Sports Psychologist'],
-    Administrative: ['General Manager', 'Secretary', 'Accountant', 'Media Officer'],
-    Support: ['Kit Manager', 'Groundskeeper', 'Security', 'Driver']
+    Technical: ['Head Coach', 'Assistant Coach', 'Fitness Coach', 'Goalkeeping Coach', 'Scout', 'Technical Director'],
+    Medical: ['Team Doctor', 'Physiotherapist', 'Sports Psychologist', 'Nutritionist'],
+    Administrative: ['General Manager', 'Secretary', 'Accountant', 'Media Officer', 'Marketing Manager'],
+    Support: ['Kit Manager', 'Groundskeeper', 'Security', 'Driver', 'Equipment Manager']
   };
+
+  const statusOptions = [
+    { value: 'active', label: 'Active' },
+    { value: 'inactive', label: 'Inactive' }
+  ];
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -63,14 +71,43 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setFormData(prev => ({ ...prev, image: result }));
+        setImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formData.name || !formData.role || !formData.department || !formData.email) {
+      toast({ title: 'Missing required fields', description: 'Please fill in all required fields.', variant: 'destructive' });
+      return;
+    }
+
     try {
-      // Convert numeric fields to numbers as required by backend
       const payload = {
-        ...formData,
+        name: formData.name,
+        role: formData.role,
+        department: formData.department as 'Technical' | 'Medical' | 'Administrative' | 'Support',
         experience: formData.experience ? Number(formData.experience) : undefined,
+        email: formData.email,
+        phone: formData.phone || '',
+        qualifications: formData.qualifications || '',
+        bio: formData.bio || '',
+        status: formData.status,
+        image: formData.image
       };
+
       let result;
       if (mode === 'edit' && initialData?.id) {
         result = await staffAPI.update(initialData.id, payload);
@@ -88,6 +125,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
         navigate('/manage/staff');
       }
     } catch (error) {
+      console.error('Error saving staff member:', error);
       toast({
         title: `Error ${mode === 'edit' ? 'updating' : 'adding'} staff member`,
         description: "Please try again later",
@@ -111,12 +149,28 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
           </div>
         </div>
       ) : null}
+      
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Staff Information</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Staff Image */}
+            <div>
+              <Label htmlFor="image">Staff Photo</Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="mb-2"
+              />
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover rounded-full border" />
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Full Name *</Label>
@@ -196,6 +250,22 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
                   placeholder="Enter phone number"
                 />
               </div>
+
+              <div className="md:col-span-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
             <div>
@@ -226,7 +296,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
               ) : (
                 <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
               )}
-              <Button type="submit" disabled={!formData.name || !formData.department || !formData.role || !formData.email}>
+              <Button type="submit">
                 {mode === 'edit' ? 'Update Staff Member' : 'Add Staff Member'}
               </Button>
             </div>

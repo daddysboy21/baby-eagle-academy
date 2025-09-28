@@ -1,29 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-
-import { UserPlus, Edit, Trash2, Shield, ArrowLeft } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { UserPlus, Edit, Trash2, Shield, ArrowLeft, Mail, Phone, Calendar, Award, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import StaffForm from './StaffForm';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { staffAPI } from '@/services/api';
 
 interface Staff {
   id: string;
   name: string;
   role: string;
-  department: string;
-  experience: number;
+  department: 'Technical' | 'Medical' | 'Administrative' | 'Support';
+  experience?: number;
   email: string;
-  phone: string;
-  status: 'active' | 'inactive';
+  phone?: string;
+  qualifications?: string;
+  bio?: string;
+  status: string;
+  image?: string;
   createdAt: string;
 }
-
-
-import { useEffect } from 'react';
-import { staffAPI } from '@/services/api';
 
 const StaffManagement = () => {
   const [staff, setStaff] = useState<Staff[]>([]);
@@ -31,7 +30,6 @@ const StaffManagement = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  // Add missing handlers for edit dialog
   const handleEditStaff = (member: Staff) => {
     setEditingStaff(member);
     setIsEditDialogOpen(true);
@@ -59,7 +57,6 @@ const StaffManagement = () => {
     };
     fetchStaff();
   }, [toast]);
-// ...existing code...
 
   const getStatusColor = (status: string) => {
     return status === 'active' ? 'bg-green-500' : 'bg-gray-500';
@@ -70,26 +67,12 @@ const StaffManagement = () => {
       case 'Technical': return 'bg-blue-500';
       case 'Medical': return 'bg-red-500';
       case 'Administrative': return 'bg-purple-500';
+      case 'Support': return 'bg-green-500';
       default: return 'bg-gray-500';
     }
   };
 
   const handleDeleteStaff = async (staffId: string) => {
-  const handleEditStaff = (member: Staff) => {
-    setEditingStaff(member);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleEditDialogClose = () => {
-    setEditingStaff(null);
-    setIsEditDialogOpen(false);
-  };
-
-  const handleStaffUpdated = (updated: Staff) => {
-    setStaff(staff.map(s => s.id === updated.id ? updated : s));
-    handleEditDialogClose();
-    toast({ title: 'Staff member updated', description: `${updated.name} has been updated.` });
-  };
     try {
       await staffAPI.delete(staffId);
       setStaff(staff.filter(member => member.id !== staffId));
@@ -133,13 +116,25 @@ const StaffManagement = () => {
           {staff.map((member) => (
             <Card key={member.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
-                <div className="flex flex-col gap-2">
-                  <CardTitle className="text-base sm:text-lg">{member.name}</CardTitle>
-                  <div className="flex items-center justify-between">
-                    <Badge className={`${getStatusColor(member.status)} text-white w-fit text-xs`}>
-                      {member.status}
-                    </Badge>
+                <div className="flex items-center gap-3 mb-3">
+                  {member.image ? (
+                    <img 
+                      src={member.image} 
+                      alt={member.name}
+                      className="w-12 h-12 rounded-full object-cover border border-primary/20"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="w-6 h-6 text-gray-500" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <CardTitle className="text-base sm:text-lg">{member.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{member.role}</p>
                   </div>
+                  <Badge className={`${getStatusColor(member.status)} text-white w-fit text-xs`}>
+                    {member.status}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -150,11 +145,38 @@ const StaffManagement = () => {
                 </div>
                 
                 <div className="space-y-2 text-xs sm:text-sm">
-                  <p className="font-medium">{member.role}</p>
-                  <p className="text-muted-foreground">{member.experience} years experience</p>
-                  <p className="text-muted-foreground truncate">{member.email}</p>
-                  <p className="text-muted-foreground">{member.phone}</p>
+                  {member.experience && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">{member.experience} years experience</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-muted-foreground truncate">{member.email}</span>
+                  </div>
+                  
+                  {member.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-muted-foreground">{member.phone}</span>
+                    </div>
+                  )}
+
+                  {member.qualifications && (
+                    <div className="flex items-start gap-2">
+                      <Award className="w-3 h-3 text-muted-foreground mt-0.5" />
+                      <span className="text-muted-foreground line-clamp-2">{member.qualifications}</span>
+                    </div>
+                  )}
                 </div>
+
+                {member.bio && (
+                  <div className="text-xs text-muted-foreground">
+                    <p className="line-clamp-2">{member.bio}</p>
+                  </div>
+                )}
                 
                 <div className="flex gap-2 pt-2">
                   <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleEditStaff(member)}>

@@ -5,25 +5,46 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, User, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { newsAPI } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
+
+interface NewsArticle {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  tags?: string;
+  status: string;
+  image?: string;
+  createdAt: string;
+}
 
 const News = () => {
-  const [newsArticles, setNewsArticles] = useState([]);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchNews = async () => {
       try {
         const data = await newsAPI.getAll();
-        setNewsArticles(data);
+        // Filter to only show published articles
+        const publishedArticles = data.filter((article: NewsArticle) => article.status === 'published');
+        setNewsArticles(publishedArticles);
       } catch (err) {
         setError("Failed to load news articles");
+        toast({
+          title: "Error",
+          description: "Failed to load news articles",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     };
     fetchNews();
-  }, []);
+  }, [toast]);
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -48,6 +69,31 @@ const News = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+          <div className="space-y-3 sm:space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader className="pb-2">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                    <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
@@ -64,55 +110,61 @@ const News = () => {
           </div>
         </div>
 
-        <div className="space-y-4 sm:space-y-6">
-          {newsArticles.map((article) => (
-            <Card key={article.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex flex-col gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={getCategoryColor(article.category)} className="text-xs">
-                      {article.category}
-                    </Badge>
+        {newsArticles.length === 0 && !loading ? (
+          <div className="text-center py-12">
+            <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No news articles found</h3>
+            <p className="text-muted-foreground">News articles will be displayed here once published.</p>
+          </div>
+        ) : (
+          <div className="space-y-3 sm:space-y-4">
+            {newsArticles.map((article) => (
+              <Card key={article.id} className="hover:shadow-md transition-shadow">
+                {article.image && (
+                  <div className="aspect-[5/2] sm:aspect-[4/1] overflow-hidden">
+                    <img
+                      src={`data:image/jpeg;base64,${article.image}`}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <CardTitle className="text-lg sm:text-xl lg:text-2xl leading-tight">
-                    {article.title}
-                  </CardTitle>
-                  <p className="text-muted-foreground text-sm sm:text-base">
-                    {article.excerpt}
-                  </p>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="pt-3 border-t">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <span>{article.author}</span>
+                )}
+                <CardHeader className="pb-2">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant={getCategoryColor(article.category)} className="text-xs">
+                        {article.category}
+                      </Badge>
+                      {article.tags && (
+                        <div className="flex flex-wrap gap-1">
+                          {article.tags.split(',').slice(0, 2).map((tag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {tag.trim()}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <span>{formatDate(article.publishDate)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <span>{article.views} views</span>
+                    <CardTitle className="text-base sm:text-lg lg:text-xl leading-tight">
+                      {article.title}
+                    </CardTitle>
+                    <p className="text-muted-foreground text-xs sm:text-sm line-clamp-2">
+                      {article.excerpt}
+                    </p>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0 pb-3">
+                  <div className="pt-2 border-t">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Calendar className="w-3 h-3 flex-shrink-0" />
+                      <span>{formatDate(article.createdAt)}</span>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-8 sm:mt-12 text-center">
-          <Card className="p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Stay Connected</h3>
-            <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-              Want to receive the latest news and updates from Baby Eagle Football Academy?
-            </p>
-            <Button className="w-full sm:w-auto">Subscribe to Newsletter</Button>
-          </Card>
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

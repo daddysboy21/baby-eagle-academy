@@ -282,11 +282,11 @@ export const newsAPI = {
 export const galleryAPI = {
   create: async (galleryData: Record<string, unknown>) => {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`${API_BASE_URL}/gallery`, {
+    const response = await fetch(`${API_BASE_URL}/gallery/upload`, {
       method: 'POST',
-      headers: {
+      headers: { 
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}` 
       },
       body: JSON.stringify(galleryData)
     });

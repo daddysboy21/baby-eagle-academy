@@ -10,21 +10,21 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { playersAPI } from '@/services/api';
 
-
-
 interface Player {
+  _id?: string;
   id?: string;
   name: string;
   position: string;
   age: number;
   nationality: string;
   jerseyNumber: number;
-  status: 'active' | 'injured' | 'suspended';
-  createdAt?: string;
-  height?: number;
-  weight?: number;
+  height: number;
+  weight: number;
   previousClub?: string;
   bio?: string;
+  status: 'active' | 'injured' | 'suspended';
+  image?: string;
+  createdAt?: string;
 }
 
 interface PlayerFormProps {
@@ -48,25 +48,23 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
     previousClub: initialData?.previousClub || '',
     bio: initialData?.bio || '',
     status: initialData?.status || 'active',
-    image: '',
+    image: initialData?.image || '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image || null);
 
   const positions = [
-    'Goalkeeper',
-    'Defender',
-    'Midfielder',
-    'Forward',
-    'Winger',
-    'Striker'
+    'Goalkeeper', 'Defender', 'Midfielder', 'Forward', 'Winger', 'Striker'
+  ];
+
+  const statusOptions = [
+    { value: 'active', label: 'Active' },
+    { value: 'injured', label: 'Injured' },
+    { value: 'suspended', label: 'Suspended' }
   ];
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,8 +73,9 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image: reader.result as string }));
-        setImagePreview(reader.result as string);
+        const result = reader.result as string;
+        setFormData(prev => ({ ...prev, image: result }));
+        setImagePreview(result);
       };
       reader.readAsDataURL(file);
     }
@@ -84,22 +83,36 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formData.name || !formData.position || !formData.age || !formData.nationality || !formData.jerseyNumber) {
+      toast({ title: 'Missing required fields', description: 'Please fill in all required fields.', variant: 'destructive' });
+      return;
+    }
+    
     if (mode === 'add' && !formData.image) {
       toast({ title: 'Image required', description: 'Please upload a player image.', variant: 'destructive' });
       return;
     }
+
     try {
-      // Convert numeric fields to numbers as required by backend
       const payload = {
-        ...formData,
-        age: formData.age ? Number(formData.age) : undefined,
-        jerseyNumber: formData.jerseyNumber ? Number(formData.jerseyNumber) : undefined,
-        height: formData.height ? Number(formData.height) : undefined,
-        weight: formData.weight ? Number(formData.weight) : undefined,
+        name: formData.name,
+        position: formData.position,
+        age: Number(formData.age),
+        nationality: formData.nationality,
+        jerseyNumber: Number(formData.jerseyNumber),
+        height: formData.height ? Number(formData.height) : 0,
+        weight: formData.weight ? Number(formData.weight) : 0,
+        previousClub: formData.previousClub || '',
+        bio: formData.bio || '',
+        status: formData.status as 'active' | 'injured' | 'suspended',
+        image: formData.image
       };
+
       let result;
-      if (mode === 'edit' && initialData?.id) {
-        result = await playersAPI.update(initialData.id, payload);
+      if (mode === 'edit' && (initialData?._id || initialData?.id)) {
+        result = await playersAPI.update(initialData._id || initialData.id || '', payload);
         toast({
           title: "Player updated successfully",
           description: `${result.name} has been updated`,
@@ -114,6 +127,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
         navigate('/manage/players');
       }
     } catch (error) {
+      console.error('Error saving player:', error);
       toast({
         title: `Error ${mode === 'edit' ? 'updating' : 'adding'} player`,
         description: "Please try again later",
@@ -135,12 +149,28 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
           </div>
         </div>
       ) : null}
+      
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Player Information</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Player Image */}
+            <div>
+              <Label htmlFor="image">Player Image {mode === 'add' && '*'}</Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="mb-2"
+              />
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover rounded border" />
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Full Name *</Label>
@@ -203,15 +233,32 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
                   required
                 />
               </div>
+
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               
               <div>
-                <Label htmlFor="height">Height (cm)</Label>
+                <Label htmlFor="height">Height (m)</Label>
                 <Input
                   id="height"
                   type="number"
+                  step="0.01"
                   value={formData.height}
                   onChange={(e) => handleInputChange('height', e.target.value)}
-                  placeholder="Enter height in cm"
+                  placeholder="Enter height in meters (e.g., 1.75)"
                 />
               </div>
               
@@ -226,7 +273,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
                 />
               </div>
               
-              <div>
+              <div className="md:col-span-2">
                 <Label htmlFor="previousClub">Previous Club</Label>
                 <Input
                   id="previousClub"
@@ -248,25 +295,13 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
               />
             </div>
             
-            <div>
-              <Label htmlFor="image">Player Image {mode === 'add' && '*'}</Label>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              {imagePreview && (
-                <img src={imagePreview} alt="Preview" className="mt-2 w-32 h-32 object-cover rounded" />
-              )}
-            </div>
             <div className="flex gap-4">
               {mode === 'add' ? (
                 <Button type="button" variant="outline" onClick={() => navigate('/manage/players')}>Cancel</Button>
               ) : (
                 <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
               )}
-              <Button type="submit" disabled={!formData.name || !formData.position || !formData.age || (mode === 'add' && !formData.image)}>
+              <Button type="submit">
                 {mode === 'edit' ? 'Update Player' : 'Add Player'}
               </Button>
             </div>

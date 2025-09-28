@@ -10,12 +10,16 @@ import { galleryAPI } from '@/services/api';
 
 interface GalleryItem {
   id?: string;
-  title: string;
-  description: string;
-  category: string;
+  title?: string;
+  description?: string;
+  category?: string;
   tags?: string;
   status: 'published' | 'private';
-  imageUrl?: string;
+  images?: Array<{
+    data: string;
+    uploadedAt: string;
+  }>;
+  createdAt?: string;
 }
 
 interface GalleryFormProps {
@@ -52,21 +56,29 @@ const GalleryForm: React.FC<GalleryFormProps> = ({ mode = 'add', initialData, on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (mode === 'add') {
+      toast({ 
+        title: 'Not implemented', 
+        description: 'Use the upload page to add new gallery items.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      let result;
       if (mode === 'edit' && initialData?.id) {
-        result = await galleryAPI.update(initialData.id, formData);
-        toast({ title: 'Gallery item updated', description: `${result.title} has been updated.` });
-      } else {
-        // For add mode, you should use GalleryUpload for file upload
-        toast({ title: 'Not implemented', description: 'Use the upload page to add new images.' });
-        return;
+        const result = await galleryAPI.update(initialData.id, formData);
+        toast({ 
+          title: 'Gallery item updated', 
+          description: `${result.title || 'Gallery item'} has been updated.` 
+        });
+        if (onSuccess) onSuccess(result);
       }
-      if (onSuccess) onSuccess(result);
     } catch (error) {
       toast({
-        title: `Error ${mode === 'edit' ? 'updating' : 'adding'} gallery item`,
+        title: 'Error updating gallery item',
         description: 'Please try again later',
         variant: 'destructive',
       });
@@ -86,8 +98,9 @@ const GalleryForm: React.FC<GalleryFormProps> = ({ mode = 'add', initialData, on
           placeholder="Enter title"
         />
       </div>
+      
       <div>
-        <Label htmlFor="category">Category *</Label>
+        <Label htmlFor="category">Category</Label>
         <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
           <SelectTrigger>
             <SelectValue placeholder="Select category" />
@@ -101,6 +114,7 @@ const GalleryForm: React.FC<GalleryFormProps> = ({ mode = 'add', initialData, on
           </SelectContent>
         </Select>
       </div>
+      
       <div>
         <Label htmlFor="description">Description</Label>
         <Textarea
@@ -111,6 +125,7 @@ const GalleryForm: React.FC<GalleryFormProps> = ({ mode = 'add', initialData, on
           rows={3}
         />
       </div>
+      
       <div>
         <Label htmlFor="tags">Tags</Label>
         <Input
@@ -120,6 +135,7 @@ const GalleryForm: React.FC<GalleryFormProps> = ({ mode = 'add', initialData, on
           placeholder="Enter tags separated by commas"
         />
       </div>
+      
       <div>
         <Label htmlFor="status">Visibility</Label>
         <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
@@ -132,11 +148,12 @@ const GalleryForm: React.FC<GalleryFormProps> = ({ mode = 'add', initialData, on
           </SelectContent>
         </Select>
       </div>
+      
       <div className="flex gap-4">
         <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
           Cancel
         </Button>
-        <Button type="submit" disabled={!formData.category || loading}>
+        <Button type="submit" disabled={loading}>
           {mode === 'edit' ? 'Update Gallery Item' : 'Add Gallery Item'}
         </Button>
       </div>

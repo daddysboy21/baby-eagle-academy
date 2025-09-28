@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Eye } from 'lucide-react';
 
-
 interface NewsArticle {
   id?: string;
   title: string;
@@ -18,12 +17,9 @@ interface NewsArticle {
   content: string;
   category: string;
   tags?: string;
-  status: 'published' | 'draft' | 'archived';
-  author?: string;
-  publishDate?: string;
-  views?: number;
+  status: 'published' | 'draft';
+  image?: string;
   createdAt?: string;
-  image?: string; // base64 image
 }
 
 interface NewsFormProps {
@@ -42,16 +38,34 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
     content: initialData?.content || '',
     category: initialData?.category || '',
     tags: initialData?.tags || '',
-    status: initialData?.status || 'draft',
+    status: initialData?.status || 'draft' as 'draft' | 'published',
     image: initialData?.image || '',
   });
-  // Handle image upload and convert to base64
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialData?.image ? `data:image/jpeg;base64,${initialData.image}` : null
+  );
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check file size (15MB limit to match backend)
+    if (file.size > 15 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image must be less than 15MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFormData((prev) => ({ ...prev, image: reader.result as string }));
+      const result = reader.result as string;
+      // Remove the data URL prefix to get just the base64 string
+      const base64String = result.split(',')[1];
+      setFormData(prev => ({ ...prev, image: base64String }));
+      setImagePreview(result);
     };
     reader.readAsDataURL(file);
   };
@@ -75,10 +89,17 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.image) {
-      toast({ title: 'Image required', description: 'Please upload an image for the news article.', variant: 'destructive' });
+    
+    // Validation
+    if (!formData.title || !formData.excerpt || !formData.content || !formData.category) {
+      toast({ 
+        title: 'Missing required fields', 
+        description: 'Please fill in all required fields.', 
+        variant: 'destructive' 
+      });
       return;
     }
+
     try {
       let result;
       if (mode === 'edit' && initialData?.id) {
@@ -125,6 +146,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
           </div>
         </div>
       ) : null}
+      
       <Card className="max-w-4xl">
         <CardHeader>
           <CardTitle>Article Details</CardTitle>
@@ -193,16 +215,18 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
                 required
               />
             </div>
+            
             <div>
-              <Label htmlFor="image">Article Image *</Label>
+              <Label htmlFor="image">Article Image</Label>
               <Input
                 id="image"
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
+                className="mb-2"
               />
-              {formData.image && (
-                <img src={formData.image} alt="Preview" className="mt-2 max-h-40 rounded" />
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" className="w-full max-w-md h-auto rounded border" />
               )}
             </div>
             
@@ -215,7 +239,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
               <Button 
                 type="submit" 
                 variant="outline"
-                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content || !formData.image}
+                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content}
               >
                 <Save className="h-4 w-4 mr-2" />
                 {mode === 'edit' ? 'Update Article' : 'Save as Draft'}
@@ -223,7 +247,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ mode = 'add', initialData, onSucces
               <Button 
                 type="button"
                 onClick={handleSaveAndPublish}
-                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content || !formData.image}
+                disabled={!formData.title || !formData.category || !formData.excerpt || !formData.content}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 {mode === 'edit' ? 'Update & Publish' : 'Publish Article'}
