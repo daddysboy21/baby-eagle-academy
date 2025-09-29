@@ -1,7 +1,7 @@
 // (removed accidental top-level create)
 // src/services/api.ts
 // API service functions
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dgfgshlf-5050.euw.devtunnels.ms/api';
 
 // Helper for error handling
 async function handleResponse(response: Response) {
