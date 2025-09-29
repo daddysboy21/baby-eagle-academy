@@ -137,177 +137,232 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ mode = 'add', initialData, onSu
   };
 
   return (
-    <div className="space-y-6">
-      {mode === 'add' ? (
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate('/manage/players')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h2 className="text-2xl font-bold">Add New Player</h2>
-            <p className="text-muted-foreground">Add a new player to the team roster</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-4 sm:space-y-6">
+            {mode === 'add' ? (
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/manage/players')}
+                  className="w-fit"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+                <div className="flex-1">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Add New Player</h2>
+                  <p className="text-muted-foreground text-sm sm:text-base">Add a new player to the team roster</p>
+                </div>
+              </div>
+            ) : null}
+            
+            <Card className="w-full">
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Player Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                  {/* Player Image */}
+                  <div className="space-y-2">
+                    <Label htmlFor="image" className="text-sm sm:text-base">
+                      Player Image {mode === 'add' && <span className="text-destructive">*</span>}
+                    </Label>
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full text-sm"
+                    />
+                    {imagePreview && (
+                      <div className="flex justify-center sm:justify-start mt-3">
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview" 
+                          className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg border shadow-sm" 
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm sm:text-base">
+                        Full Name <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        placeholder="Enter player's full name"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="position" className="text-sm sm:text-base">
+                        Position <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.position} onValueChange={(value) => handleInputChange('position', value)}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select position" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {positions.map((position) => (
+                            <SelectItem key={position} value={position}>
+                              {position}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="age" className="text-sm sm:text-base">
+                        Age <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="age"
+                        type="number"
+                        value={formData.age}
+                        onChange={(e) => handleInputChange('age', e.target.value)}
+                        placeholder="Enter age"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="nationality" className="text-sm sm:text-base">
+                        Nationality <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="nationality"
+                        value={formData.nationality}
+                        onChange={(e) => handleInputChange('nationality', e.target.value)}
+                        placeholder="Enter nationality"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="jerseyNumber" className="text-sm sm:text-base">
+                        Jersey Number <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="jerseyNumber"
+                        type="number"
+                        value={formData.jerseyNumber}
+                        onChange={(e) => handleInputChange('jerseyNumber', e.target.value)}
+                        placeholder="Enter jersey number"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="status" className="text-sm sm:text-base">Status</Label>
+                      <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((status) => (
+                            <SelectItem key={status.value} value={status.value}>
+                              {status.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="height" className="text-sm sm:text-base">Height (m)</Label>
+                      <Input
+                        id="height"
+                        type="number"
+                        step="0.01"
+                        value={formData.height}
+                        onChange={(e) => handleInputChange('height', e.target.value)}
+                        placeholder="e.g., 1.75"
+                        className="w-full"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="weight" className="text-sm sm:text-base">Weight (kg)</Label>
+                      <Input
+                        id="weight"
+                        type="number"
+                        value={formData.weight}
+                        onChange={(e) => handleInputChange('weight', e.target.value)}
+                        placeholder="Enter weight in kg"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="previousClub" className="text-sm sm:text-base">Previous Club</Label>
+                    <Input
+                      id="previousClub"
+                      value={formData.previousClub}
+                      onChange={(e) => handleInputChange('previousClub', e.target.value)}
+                      placeholder="Enter previous club"
+                      className="w-full"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="bio" className="text-sm sm:text-base">Biography</Label>
+                    <Textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) => handleInputChange('bio', e.target.value)}
+                      placeholder="Enter player biography..."
+                      rows={4}
+                      className="w-full resize-none"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
+                    {mode === 'add' ? (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => navigate('/manage/players')}
+                        className="w-full sm:w-auto order-2 sm:order-1"
+                      >
+                        Cancel
+                      </Button>
+                    ) : (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={onCancel}
+                        className="w-full sm:w-auto order-2 sm:order-1"
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                    <Button 
+                      type="submit"
+                      className="w-full sm:w-auto sm:flex-1 order-1 sm:order-2"
+                    >
+                      {mode === 'edit' ? 'Update Player' : 'Add Player'}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      ) : null}
-      
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Player Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Player Image */}
-            <div>
-              <Label htmlFor="image">Player Image {mode === 'add' && '*'}</Label>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="mb-2"
-              />
-              {imagePreview && (
-                <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover rounded border" />
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter player's full name"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="position">Position *</Label>
-                <Select value={formData.position} onValueChange={(value) => handleInputChange('position', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select position" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {positions.map((position) => (
-                      <SelectItem key={position} value={position}>
-                        {position}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="age">Age *</Label>
-                <Input
-                  id="age"
-                  type="number"
-                  value={formData.age}
-                  onChange={(e) => handleInputChange('age', e.target.value)}
-                  placeholder="Enter age"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="nationality">Nationality *</Label>
-                <Input
-                  id="nationality"
-                  value={formData.nationality}
-                  onChange={(e) => handleInputChange('nationality', e.target.value)}
-                  placeholder="Enter nationality"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="jerseyNumber">Jersey Number *</Label>
-                <Input
-                  id="jerseyNumber"
-                  type="number"
-                  value={formData.jerseyNumber}
-                  onChange={(e) => handleInputChange('jerseyNumber', e.target.value)}
-                  placeholder="Enter jersey number"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="height">Height (m)</Label>
-                <Input
-                  id="height"
-                  type="number"
-                  step="0.01"
-                  value={formData.height}
-                  onChange={(e) => handleInputChange('height', e.target.value)}
-                  placeholder="Enter height in meters (e.g., 1.75)"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="weight">Weight (kg)</Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  value={formData.weight}
-                  onChange={(e) => handleInputChange('weight', e.target.value)}
-                  placeholder="Enter weight in kg"
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <Label htmlFor="previousClub">Previous Club</Label>
-                <Input
-                  id="previousClub"
-                  value={formData.previousClub}
-                  onChange={(e) => handleInputChange('previousClub', e.target.value)}
-                  placeholder="Enter previous club"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="bio">Biography</Label>
-              <Textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) => handleInputChange('bio', e.target.value)}
-                placeholder="Enter player biography..."
-                rows={4}
-              />
-            </div>
-            
-            <div className="flex gap-4">
-              {mode === 'add' ? (
-                <Button type="button" variant="outline" onClick={() => navigate('/manage/players')}>Cancel</Button>
-              ) : (
-                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-              )}
-              <Button type="submit">
-                {mode === 'edit' ? 'Update Player' : 'Add Player'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

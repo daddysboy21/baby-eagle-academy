@@ -137,172 +137,221 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
   const availableRoles = formData.department ? roles[formData.department as keyof typeof roles] || [] : [];
 
   return (
-    <div className="space-y-6">
-      {mode === 'add' ? (
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate('/manage/staff')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h2 className="text-2xl font-bold">Add New Staff Member</h2>
-            <p className="text-muted-foreground">Add a new staff member to the team</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-4 sm:space-y-6">
+            {mode === 'add' ? (
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/manage/staff')}
+                  className="w-fit"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+                <div className="flex-1">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Add New Staff Member</h2>
+                  <p className="text-muted-foreground text-sm sm:text-base">Add a new staff member to the team</p>
+                </div>
+              </div>
+            ) : null}
+            
+            <Card className="w-full">
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Staff Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                  {/* Staff Image */}
+                  <div className="space-y-2">
+                    <Label htmlFor="image" className="text-sm sm:text-base">Staff Photo</Label>
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full text-sm"
+                    />
+                    {imagePreview && (
+                      <div className="flex justify-center sm:justify-start mt-3">
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview" 
+                          className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border shadow-sm" 
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm sm:text-base">
+                        Full Name <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        placeholder="Enter full name"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="department" className="text-sm sm:text-base">
+                        Department <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.department} onValueChange={(value) => {
+                        handleInputChange('department', value);
+                        handleInputChange('role', ''); // Reset role when department changes
+                      }}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="role" className="text-sm sm:text-base">
+                        Role <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableRoles.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {role}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="experience" className="text-sm sm:text-base">Years of Experience</Label>
+                      <Input
+                        id="experience"
+                        type="number"
+                        value={formData.experience}
+                        onChange={(e) => handleInputChange('experience', e.target.value)}
+                        placeholder="Enter years of experience"
+                        className="w-full"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm sm:text-base">
+                        Email <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        placeholder="Enter email address"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-sm sm:text-base">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        placeholder="Enter phone number"
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="status" className="text-sm sm:text-base">Status</Label>
+                      <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((status) => (
+                            <SelectItem key={status.value} value={status.value}>
+                              {status.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="qualifications" className="text-sm sm:text-base">Qualifications</Label>
+                    <Textarea
+                      id="qualifications"
+                      value={formData.qualifications}
+                      onChange={(e) => handleInputChange('qualifications', e.target.value)}
+                      placeholder="Enter qualifications and certifications..."
+                      rows={3}
+                      className="w-full resize-none"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="bio" className="text-sm sm:text-base">Biography</Label>
+                    <Textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) => handleInputChange('bio', e.target.value)}
+                      placeholder="Enter staff member biography..."
+                      rows={4}
+                      className="w-full resize-none"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
+                    {mode === 'add' ? (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => navigate('/manage/staff')}
+                        className="w-full sm:w-auto order-2 sm:order-1"
+                      >
+                        Cancel
+                      </Button>
+                    ) : (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={onCancel}
+                        className="w-full sm:w-auto order-2 sm:order-1"
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                    <Button 
+                      type="submit"
+                      className="w-full sm:w-auto sm:flex-1 order-1 sm:order-2"
+                    >
+                      {mode === 'edit' ? 'Update Staff Member' : 'Add Staff Member'}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      ) : null}
-      
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Staff Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Staff Image */}
-            <div>
-              <Label htmlFor="image">Staff Photo</Label>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="mb-2"
-              />
-              {imagePreview && (
-                <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover rounded-full border" />
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter full name"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="department">Department *</Label>
-                <Select value={formData.department} onValueChange={(value) => {
-                  handleInputChange('department', value);
-                  handleInputChange('role', ''); // Reset role when department changes
-                }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="role">Role *</Label>
-                <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableRoles.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="experience">Years of Experience</Label>
-                <Input
-                  id="experience"
-                  type="number"
-                  value={formData.experience}
-                  onChange={(e) => handleInputChange('experience', e.target.value)}
-                  placeholder="Enter years of experience"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter email address"
-                  required
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Enter phone number"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="qualifications">Qualifications</Label>
-              <Textarea
-                id="qualifications"
-                value={formData.qualifications}
-                onChange={(e) => handleInputChange('qualifications', e.target.value)}
-                placeholder="Enter qualifications and certifications..."
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="bio">Biography</Label>
-              <Textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) => handleInputChange('bio', e.target.value)}
-                placeholder="Enter staff member biography..."
-                rows={4}
-              />
-            </div>
-            
-            <div className="flex gap-4">
-              {mode === 'add' ? (
-                <Button type="button" variant="outline" onClick={() => navigate('/manage/staff')}>Cancel</Button>
-              ) : (
-                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-              )}
-              <Button type="submit">
-                {mode === 'edit' ? 'Update Staff Member' : 'Add Staff Member'}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

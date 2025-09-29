@@ -79,7 +79,7 @@ const Players = () => {
                 )}
                 <div className="text-center space-y-0.5">
                   <CardTitle className="text-xs sm:text-xs font-semibold leading-tight line-clamp-2 h-8 flex items-center justify-center">{player.name}</CardTitle>
-                  <Badge variant="secondary" className="text-xs px-1 py-0.5 h-4 text-xs">{player.position}</Badge>
+                  <Badge variant="secondary" className="text-xs px-1 py-0.5 h-4">{player.position}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="p-1.5 sm:p-2 pt-0 space-y-1.5">
