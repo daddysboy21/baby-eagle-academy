@@ -22,6 +22,8 @@ import NewsManagement from "./components/manage/NewsManagement";
 import NewsForm from "./components/manage/NewsForm";
 import GalleryManagement from "./components/manage/GalleryManagement";
 import GalleryUpload from "./components/manage/GalleryUpload";
+import ApplicationsManagement from "./components/manage/ApplicationsManagement";
+import PersonalSettings from "./components/manage/PersonalSettings";
 import SystemSettings from "./components/manage/SystemSettings";
 
 const queryClient = new QueryClient();
@@ -101,6 +103,20 @@ const App = () => (
             <Route path="/manage/gallery/upload" element={
               <ProtectedRoute>
                 <GalleryUpload />
+              </ProtectedRoute>
+            } />
+            
+            {/* Applications Management Route */}
+            <Route path="/manage/applications" element={
+              <ProtectedRoute requiredRoles={['admin', 'co-admin']}>
+                <ApplicationsManagement />
+              </ProtectedRoute>
+            } />
+            
+            {/* Personal Settings Route */}
+            <Route path="/manage/personal-settings" element={
+              <ProtectedRoute>
+                <PersonalSettings />
               </ProtectedRoute>
             } />
             

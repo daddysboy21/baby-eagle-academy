@@ -12,7 +12,8 @@ import {
   Shield, 
   UserCheck,
   Settings,
-  LogOut
+  LogOut,
+  FileText
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -78,6 +79,29 @@ const Manage = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Applications Management */}
+          {canManageUsers && (
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Applications
+                </CardTitle>
+                <CardDescription>
+                  Review and manage incoming applications
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Link to="/manage/applications">
+                  <Button className="w-full justify-start" variant="outline">
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Applications
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+
           {/* User Management */}
           {canManageUsers && (
             <Card className="hover:shadow-lg transition-shadow">
@@ -188,6 +212,27 @@ const Manage = () => {
               </CardContent>
             </Card>
           )}
+
+          {/* Personal Settings */}
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Personal Settings
+              </CardTitle>
+              <CardDescription>
+                Update your profile and password
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link to="/manage/personal-settings">
+                <Button className="w-full justify-start" variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  My Settings
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

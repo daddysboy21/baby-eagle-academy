@@ -8,6 +8,14 @@
     <meta name="author" content="Baby Eagle Football Academy" />
     <meta name="keywords" content="Baby Eagle Football Academy, BEFA, Liberia football, youth football training, football academy, sports education, drug prevention, youth development" />
 
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1e40af">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="BEFA Manager">
+    <link rel="manifest" href="/manifest.json">
+
     <meta property="og:title" content="Baby Eagle Football Academy - Building Champions On & Off the Pitch" />
     <meta property="og:description" content="Community-driven sports academy in Liberia dedicated to nurturing young football talents while promoting education, discipline, and social responsibility." />
     <meta property="og:type" content="website" />
@@ -21,5 +29,20 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

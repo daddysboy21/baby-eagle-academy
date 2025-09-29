@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import type { AuthContextType } from '@/contexts/AuthContext';
 import { UserRole } from '@/contexts/AuthContext';
 import { UserPlus, Edit, Trash2, Shield, Users, Camera, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -127,7 +129,15 @@ const UserForm: React.FC<{
 };
 
 const UserManagement = () => {
+  const { user } = useAuth() as AuthContextType;
   const { toast } = useToast();
+  
+  // Role-based permissions
+  const canManageUsers = user?.role === 'admin' || user?.role === 'co-admin';
+  const canAddAdmin = user?.role === 'admin';
+  const canAddCoAdmin = user?.role === 'admin';
+  const canAddMediaPerson = user?.role === 'admin' || user?.role === 'co-admin';
+  
   const [users, setUsers] = useState<User[]>([]);
   useEffect(() => {
     const fetchUsers = async () => {
