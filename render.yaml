@@ -1,0 +1,7 @@
+services:
+  - type: static
+    name: my-vite-react-pwa
+    repo: https://github.com/daddysboy21/baby-eagle-academy.git
+    branch: main
+    buildCommand: npm install && npm run build
+    publishPath: dist
