@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,16 +16,28 @@ import {
   Upload
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { authAPI } from '@/services/api';
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  image?: string;
+  createdAt: string;
+}
 
 const PersonalSettings = () => {
-  const { user } = useAuth() as AuthContextType;
+  const { user, setUser } = useAuth() as AuthContextType;
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: '',
+    email: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
@@ -33,12 +45,49 @@ const PersonalSettings = () => {
   
   const [profileImage, setProfileImage] = useState<string>('');
 
+  // Load user profile on component mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        setProfileLoading(true);
+        const profileData = await authAPI.getProfile();
+        setProfile(profileData);
+        setFormData(prev => ({
+          ...prev,
+          name: profileData.name || '',
+          email: profileData.email || ''
+        }));
+        setProfileImage(profileData.image || '');
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        });
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [toast]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const convertImageToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +104,7 @@ const PersonalSettings = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
+    // Validate file size (max 5MB to stay under 15MB base64 limit)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Error", 
@@ -68,23 +117,20 @@ const PersonalSettings = () => {
     try {
       setImageLoading(true);
       
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setProfileImage(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      // Convert to base64
+      const base64Image = await convertImageToBase64(file);
       
-      // TODO: Upload to server
-      // const formData = new FormData();
-      // formData.append('image', file);
-      // const response = await fetch('/api/users/avatar', {
-      //   method: 'POST',
-      //   body: formData,
-      //   headers: {
-      //     Authorization: `Bearer ${localStorage.getItem('authToken')}`
-      //   }
-      // });
+      // Update profile with new image
+      const updatedProfile = await authAPI.updateProfile({ image: base64Image });
+      
+      // Update local state
+      setProfile(updatedProfile);
+      setProfileImage(updatedProfile.image || '');
+      
+      // Update auth context if needed
+      if (setUser) {
+        setUser(prev => prev ? { ...prev, image: updatedProfile.image } : null);
+      }
 
       toast({
         title: "Success",
@@ -117,18 +163,23 @@ const PersonalSettings = () => {
     try {
       setLoading(true);
       
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/users/profile', {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer ${localStorage.getItem('authToken')}`
-      //   },
-      //   body: JSON.stringify({
-      //     name: formData.name,
-      //     email: formData.email
-      //   })
-      // });
+      // Update profile
+      const updatedProfile = await authAPI.updateProfile({
+        name: formData.name,
+        email: formData.email
+      });
+      
+      // Update local state
+      setProfile(updatedProfile);
+      
+      // Update auth context if needed
+      if (setUser) {
+        setUser(prev => prev ? { 
+          ...prev, 
+          name: updatedProfile.name,
+          email: updatedProfile.email 
+        } : null);
+      }
 
       toast({
         title: "Success",
@@ -138,7 +189,7 @@ const PersonalSettings = () => {
       console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: error instanceof Error ? error.message : "Failed to update profile",
         variant: "destructive",
       });
     } finally {
@@ -179,18 +230,8 @@ const PersonalSettings = () => {
     try {
       setLoading(true);
       
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/users/password', {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer ${localStorage.getItem('authToken')}`
-      //   },
-      //   body: JSON.stringify({
-      //     currentPassword: formData.currentPassword,
-      //     newPassword: formData.newPassword
-      //   })
-      // });
+      // Change password
+      await authAPI.changePassword(formData.currentPassword, formData.newPassword);
 
       // Clear password fields
       setFormData(prev => ({
@@ -208,13 +249,24 @@ const PersonalSettings = () => {
       console.error('Error updating password:', error);
       toast({
         title: "Error",
-        description: "Failed to update password",
+        description: error instanceof Error ? error.message : "Failed to update password",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
+
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
@@ -243,15 +295,15 @@ const PersonalSettings = () => {
                 Profile Image
               </CardTitle>
               <CardDescription>
-                Upload a profile picture to personalize your account
+                Upload a profile picture to personalize your account (Max 5MB)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <Avatar className="h-20 w-20 sm:h-24 sm:w-24">
-                  <AvatarImage src={profileImage} alt={user?.name} />
+                  <AvatarImage src={profileImage} alt={profile?.name} />
                   <AvatarFallback className="text-lg">
-                    {user?.name?.charAt(0).toUpperCase()}
+                    {profile?.name?.charAt(0).toUpperCase() || user?.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 
@@ -325,12 +377,18 @@ const PersonalSettings = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    disabled // Email typically shouldn't be changeable
                   />
                   <p className="text-xs text-muted-foreground">
-                    Email address cannot be changed. Contact admin if needed.
+                    Email changes require admin verification
                   </p>
                 </div>
+
+                {profile && (
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p><strong>Role:</strong> {profile.role}</p>
+                    <p><strong>Member since:</strong> {new Date(profile.createdAt).toLocaleDateString()}</p>
+                  </div>
+                )}
                 
                 <Button type="submit" disabled={loading} className="w-full">
                   {loading ? (
@@ -357,7 +415,7 @@ const PersonalSettings = () => {
                 Change Password
               </CardTitle>
               <CardDescription>
-                Update your password to keep your account secure
+                Update your password to keep your account secure (minimum 6 characters)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -380,9 +438,10 @@ const PersonalSettings = () => {
                     id="newPassword"
                     name="newPassword"
                     type="password"
-                    placeholder="Enter your new password"
+                    placeholder="Enter your new password (min 6 characters)"
                     value={formData.newPassword}
                     onChange={handleInputChange}
+                    minLength={6}
                   />
                 </div>
                 
@@ -395,6 +454,7 @@ const PersonalSettings = () => {
                     placeholder="Confirm your new password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
+                    minLength={6}
                   />
                 </div>
                 

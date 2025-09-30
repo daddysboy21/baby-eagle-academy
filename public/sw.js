@@ -214,8 +214,8 @@ self.addEventListener('push', (event) => {
     
     const options = {
       body: data.body,
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: '/icons/favicon.png',
+      badge: '/icons/favicon.png',
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
@@ -225,12 +225,10 @@ self.addEventListener('push', (event) => {
         {
           action: 'explore',
           title: 'View',
-          icon: '/icons/checkmark.png'
         },
         {
           action: 'close',
           title: 'Close',
-          icon: '/icons/xmark.png'
         }
       ]
     };

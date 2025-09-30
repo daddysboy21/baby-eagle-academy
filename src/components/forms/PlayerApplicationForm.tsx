@@ -62,15 +62,27 @@ const PlayerApplicationForm = () => {
       if (data.photo instanceof File) {
         photoBase64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
+          reader.onload = () => {
+            const result = reader.result as string;
+            // Extract just the base64 part (remove data:image/jpeg;base64, prefix)
+            const base64String = result.split(',')[1];
+            resolve(base64String);
+          };
           reader.onerror = reject;
           reader.readAsDataURL(data.photo);
         });
       }
+      
       const payload = {
-        ...data,
+        fullName: data.fullName,
+        age: data.age,
+        contact: data.contact,
+        email: data.email,
+        schoolCommunity: data.schoolCommunity,
+        position: data.position,
         photo: photoBase64,
       };
+      
       await applicationsAPI.submitPlayer(payload);
       toast({
         title: "Application Submitted!",

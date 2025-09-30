@@ -36,16 +36,92 @@ export const authAPI = {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` }
     });
+  },
+
+  // Add profile management functions
+  getProfile: async () => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return handleResponse(response);
+  },
+
+  updateProfile: async (profileData: { name?: string; email?: string; image?: string }) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(profileData)
+    });
+    return handleResponse(response);
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    return handleResponse(response);
   }
 };
 
 // Applications API
 export const applicationsAPI = {
+  // Player Applications
+  getPlayerApplications: async (status?: string, page = 1, limit = 10) => {
+    const token = localStorage.getItem('authToken');
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    
+    const response = await fetch(`${API_BASE_URL}/applications/player?${params}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return handleResponse(response);
+  },
+
   submitPlayer: async (applicationData: Record<string, unknown>) => {
     const response = await fetch(`${API_BASE_URL}/applications/player`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(applicationData)
+    });
+    return handleResponse(response);
+  },
+
+  updatePlayerStatus: async (id: string, status: string, reviewNotes?: string) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/applications/player/${id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}` 
+      },
+      body: JSON.stringify({ status, reviewNotes })
+    });
+    return handleResponse(response);
+  },
+
+  // Partner Applications
+  getPartnerApplications: async (status?: string, page = 1, limit = 10) => {
+    const token = localStorage.getItem('authToken');
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    
+    const response = await fetch(`${API_BASE_URL}/applications/partner?${params}`, {
+      headers: { Authorization: `Bearer ${token}` }
     });
     return handleResponse(response);
   },
@@ -59,6 +135,33 @@ export const applicationsAPI = {
     return handleResponse(response);
   },
 
+  updatePartnerStatus: async (id: string, status: string, reviewNotes?: string) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/applications/partner/${id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}` 
+      },
+      body: JSON.stringify({ status, reviewNotes })
+    });
+    return handleResponse(response);
+  },
+
+  // Fan Applications
+  getFanApplications: async (status?: string, page = 1, limit = 10) => {
+    const token = localStorage.getItem('authToken');
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.append('status', status);
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    
+    const response = await fetch(`${API_BASE_URL}/applications/fan?${params}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return handleResponse(response);
+  },
+
   submitFan: async (applicationData: Record<string, unknown>) => {
     const response = await fetch(`${API_BASE_URL}/applications/fan`, {
       method: 'POST',
@@ -67,6 +170,28 @@ export const applicationsAPI = {
     });
     return handleResponse(response);
   },
+
+  updateFanStatus: async (id: string, status: string, reviewNotes?: string) => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/applications/fan/${id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}` 
+      },
+      body: JSON.stringify({ status, reviewNotes })
+    });
+    return handleResponse(response);
+  },
+
+  // All Applications Summary
+  getAllApplications: async () => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${API_BASE_URL}/applications/all`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return handleResponse(response);
+  }
 };
 
 // System Settings API

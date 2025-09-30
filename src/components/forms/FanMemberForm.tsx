@@ -47,18 +47,28 @@ const FanMemberForm = () => {
   const onSubmit = async (data: FanMemberFormData) => {
     try {
       let photoBase64: string | undefined = undefined;
-      if (data.photo instanceof File) {
+      if (photoFile) {
         photoBase64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
+          reader.onload = () => {
+            const result = reader.result as string;
+            // Extract just the base64 part
+            const base64String = result.split(',')[1];
+            resolve(base64String);
+          };
           reader.onerror = reject;
-          reader.readAsDataURL(data.photo);
+          reader.readAsDataURL(photoFile);
         });
       }
+      
       const payload = {
-        ...data,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        whyJoin: data.whyJoin,
         photo: photoBase64,
       };
+      
       await applicationsAPI.submitFan(payload);
       toast({
         title: "Application Submitted!",

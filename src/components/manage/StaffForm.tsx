@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Shield } from 'lucide-react';
 import { staffAPI } from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
+import type { AuthContextType } from '@/contexts/AuthContext';
 
 interface Staff {
   id?: string;
@@ -35,6 +37,14 @@ interface StaffFormProps {
 const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSuccess, onCancel }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth() as AuthContextType;
+  
+  // Privilege checking
+  const isAdmin = user?.role === 'admin';
+  const isCoAdmin = user?.role === 'co-admin';
+  const isMediaPerson = user?.role === 'media-person';
+  const canManageStaff = isAdmin || isCoAdmin || isMediaPerson;
+
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     role: initialData?.role || '',
@@ -50,6 +60,18 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image || null);
 
+  // Check access on component mount
+  useEffect(() => {
+    if (!canManageStaff) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to manage staff members",
+        variant: "destructive",
+      });
+      navigate('/manage');
+    }
+  }, [canManageStaff, navigate, toast]);
+
   const departments: Array<'Technical' | 'Medical' | 'Administrative' | 'Support'> = ['Technical', 'Medical', 'Administrative', 'Support'];
   
   const roles = {
@@ -63,6 +85,33 @@ const StaffForm: React.FC<StaffFormProps> = ({ mode = 'add', initialData, onSucc
     { value: 'active', label: 'Active' },
     { value: 'inactive', label: 'Inactive' }
   ];
+
+  // If user doesn't have permission, show access denied
+  if (!canManageStaff) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Shield className="h-6 w-6 text-red-600" />
+            </div>
+            <CardTitle className="text-red-600">Access Denied</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-muted-foreground">
+              You don't have permission to manage staff members.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Required roles: Admin, Co-Admin, or Media Person
+            </p>
+            <Button onClick={() => navigate('/manage')} className="w-full">
+              Return to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({

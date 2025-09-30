@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, 
-  UserPlus, 
   Newspaper, 
   Camera, 
   Shield, 
@@ -33,9 +32,16 @@ const Manage = () => {
     }
   };
 
-  const canManageUsers = user?.role === 'admin' || user?.role === 'co-admin';
-  const canManageContent = true; // All roles can manage some content
-  const canAddAdmins = user?.role === 'admin';
+  // Updated privilege system
+  const isAdmin = user?.role === 'admin';
+  const isCoAdmin = user?.role === 'co-admin';
+  const isMediaPerson = user?.role === 'media-person';
+  
+  // Admin: Full access to everything
+  const canManageUsers = isAdmin || isCoAdmin;
+  const canManageApplications = isAdmin || isCoAdmin;
+  const canManageContent = isAdmin || isCoAdmin || isMediaPerson;
+  const canManageTeams = isAdmin || isCoAdmin || isMediaPerson;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
@@ -79,30 +85,8 @@ const Manage = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Applications Management */}
-          {canManageUsers && (
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Applications
-                </CardTitle>
-                <CardDescription>
-                  Review and manage incoming applications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Link to="/manage/applications">
-                  <Button className="w-full justify-start" variant="outline">
-                    <FileText className="h-4 w-4 mr-2" />
-                    View Applications
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
 
-          {/* User Management */}
+          {/* User Management - Admin & Co-Admin only */}
           {canManageUsers && (
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -111,7 +95,7 @@ const Manage = () => {
                   User Management
                 </CardTitle>
                 <CardDescription>
-                  Manage system users and permissions
+                  {isAdmin ? "Manage all system users and permissions" : "Manage system users (limited permissions)"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -125,49 +109,53 @@ const Manage = () => {
             </Card>
           )}
 
-          {/* Players Management */}
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Players
-              </CardTitle>
-              <CardDescription>
-                Manage players and team roster
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Link to="/manage/players">
-                <Button className="w-full justify-start" variant="outline">
-                  <Users className="h-4 w-4 mr-2" />
-                  Manage Players
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          {/* Players Management - Admin, Co-Admin & Media-Person */}
+          {canManageTeams && (
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Players
+                </CardTitle>
+                <CardDescription>
+                  Manage players and team roster
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Link to="/manage/players">
+                  <Button className="w-full justify-start" variant="outline">
+                    <Users className="h-4 w-4 mr-2" />
+                    Manage Players
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Staff Management */}
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Staff
-              </CardTitle>
-              <CardDescription>
-                Manage coaching staff and personnel
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Link to="/manage/staff">
-                <Button className="w-full justify-start" variant="outline">
-                  <Shield className="h-4 w-4 mr-2" />
-                  Manage Staff
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          {/* Staff Management - Admin, Co-Admin & Media-Person */}
+          {canManageTeams && (
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Staff
+                </CardTitle>
+                <CardDescription>
+                  Manage coaching staff and personnel
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Link to="/manage/staff">
+                  <Button className="w-full justify-start" variant="outline">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Manage Staff
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* News Management */}
+          {/* News Management - Admin, Co-Admin & Media-Person */}
           {canManageContent && (
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -190,7 +178,7 @@ const Manage = () => {
             </Card>
           )}
 
-          {/* Gallery Management */}
+          {/* Gallery Management - Admin, Co-Admin & Media-Person */}
           {canManageContent && (
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -213,7 +201,30 @@ const Manage = () => {
             </Card>
           )}
 
-          {/* Personal Settings */}
+          {/* Applications Management - Admin & Co-Admin only */}
+          {canManageApplications && (
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Applications
+                </CardTitle>
+                <CardDescription>
+                  Review and manage incoming applications
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Link to="/manage/applications">
+                  <Button className="w-full justify-start" variant="outline">
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Applications
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Personal Settings - Available to ALL roles */}
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
