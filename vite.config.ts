@@ -11,27 +11,29 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react(), 
+    react(),
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Exclude large favicon files from precaching
+        globPatterns: ['**/*.{js,css,html,svg}'],
+        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15 MB
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/dgfgshlf-5050\.euw\.devtunnels\.ms\/api\/.*/,
+            urlPattern: /^https:\/\/befa-back\.onrender\.com\/api\/.*/,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              }
-            }
-          }
-        ]
-      }
-    })
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
+              },
+            },
+          },
+        ],
+      },
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {
